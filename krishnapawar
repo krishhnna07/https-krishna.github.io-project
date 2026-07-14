@@ -1,0 +1,2580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unitech Plasto — Plant Management System</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:     #0d1b2a;
+  --steel:   #1c3a5e;
+  --mid:     #2e5f9e;
+  --sky:     #4a90d9;
+  --amber:   #e8940a;
+  --amber2:  #fbbf24;
+  --green:   #15803d;
+  --green2:  #22c55e;
+  --red:     #b91c1c;
+  --red2:    #f87171;
+  --slate:   #f0f4f9;
+  --white:   #ffffff;
+  --border:  #ccd8e8;
+  --muted:   #607a94;
+  --font-display: 'Segoe UI', system-ui, sans-serif;
+}
+
+body { font-family: var(--font-display); background: var(--slate); color: var(--ink); min-height: 100vh; }
+
+/* ── HEADER ── */
+.topbar {
+  background: var(--ink);
+  display: flex; align-items: center; gap: 0;
+  height: 56px; padding: 0 0 0 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-brand {
+  background: var(--amber); height: 100%;
+  display: flex; align-items: center; padding: 0 20px;
+  gap: 10px; min-width: 220px;
+}
+.topbar-brand .initials {
+  width: 34px; height: 34px; background: var(--ink);
+  border-radius: 6px; display: flex; align-items: center;
+  justify-content: center; font-weight: 900; font-size: 14px;
+  color: var(--amber); letter-spacing: -0.5px;
+}
+.topbar-brand h1 { font-size: 13px; font-weight: 800; color: var(--ink); line-height: 1.2; }
+.topbar-brand p  { font-size: 10px; color: rgba(0,0,0,0.55); }
+.topbar-nav { display: flex; height: 100%; margin-left: 8px; }
+.nav-btn {
+  height: 100%; padding: 0 18px; border: none; background: transparent;
+  color: #8ab4d4; font-size: 13px; font-weight: 600; cursor: pointer;
+  border-bottom: 3px solid transparent; transition: all 0.18s;
+  display: flex; align-items: center; gap: 7px; white-space: nowrap;
+}
+.nav-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
+.nav-btn.active { color: var(--amber2); border-bottom-color: var(--amber2); background: rgba(255,255,255,0.04); }
+.nav-btn .nav-num {
+  background: rgba(255,255,255,0.12); border-radius: 10px;
+  padding: 1px 7px; font-size: 11px; font-weight: 700;
+}
+.nav-btn.active .nav-num { background: var(--amber2); color: var(--ink); }
+.topbar-right { margin-left: auto; padding-right: 18px; display: flex; align-items: center; gap: 14px; }
+.clock { color: #8ab4d4; font-size: 12px; text-align: right; }
+.clock strong { display: block; font-size: 16px; color: #fff; font-variant-numeric: tabular-nums; }
+
+/* ── PAGE ── */
+.page { display: none; padding: 24px 20px; max-width: 1120px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* ── SECTION TITLE ── */
+.section-title {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+}
+.section-title h2 { font-size: 20px; font-weight: 800; color: var(--steel); }
+.section-title p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.stage-pill {
+  background: var(--steel); color: #fff;
+  border-radius: 20px; padding: 4px 14px; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+}
+.stage-pill.prod { background: #7c3aed; }
+.stage-pill.fg   { background: var(--mid); }
+.stage-pill.disp { background: var(--green); }
+
+/* ── STAT CARDS ── */
+.stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 22px; }
+.stat { background: var(--white); border-radius: 10px; border: 1px solid var(--border);
+  padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+.stat-val { font-size: 30px; font-weight: 900; line-height: 1; }
+.stat-lbl { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+.stat.v-purple .stat-val { color: #7c3aed; }
+.stat.v-blue   .stat-val { color: var(--mid); }
+.stat.v-green  .stat-val { color: var(--green); }
+.stat.v-red    .stat-val { color: var(--red); }
+.stat.v-amber  .stat-val { color: var(--amber); }
+
+/* ── CARD ── */
+.card {
+  background: var(--white); border-radius: 12px; border: 1px solid var(--border);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 18px;
+}
+.card-head {
+  padding: 12px 18px; display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.card-head.purple { background: #7c3aed; }
+.card-head.blue   { background: var(--steel); }
+.card-head.green  { background: var(--green); }
+.card-head.amber  { background: var(--amber); }
+.card-head span   { color: #fff; font-weight: 700; font-size: 14px; }
+.card-head .head-action {
+  margin-left: auto; background: rgba(255,255,255,0.18); color: #fff;
+  border: 1px solid rgba(255,255,255,0.25); border-radius: 6px;
+  padding: 5px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: background 0.18s;
+}
+.card-head .head-action:hover { background: rgba(255,255,255,0.3); }
+.card-body { padding: 18px; }
+
+/* ── FORM GRID ── */
+.form-grid { display: grid; gap: 12px; }
+.form-grid.cols2 { grid-template-columns: 1fr 1fr; }
+.form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-grid.cols4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.f-group label {
+  display: block; font-size: 11px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;
+}
+.f-group input, .f-group select {
+  width: 100%; padding: 9px 12px; border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: 13.5px; outline: none; transition: border 0.2s;
+  background: var(--white); color: var(--ink);
+}
+.f-group input:focus, .f-group select:focus { border-color: var(--mid); }
+
+/* ── BUTTONS ── */
+.btn { border: none; border-radius: 8px; padding: 10px 22px; font-weight: 700;
+  font-size: 13px; cursor: pointer; transition: all 0.18s; }
+.btn-blue  { background: var(--steel); color: #fff; }
+.btn-blue:hover { background: var(--ink); }
+.btn-green { background: var(--green); color: #fff; }
+.btn-green:hover { background: #14532d; }
+.btn-red   { background: var(--red); color: #fff; }
+.btn-red:hover { background: #7f1d1d; }
+.btn-amber { background: var(--amber); color: var(--ink); }
+.btn-amber:hover { background: #b45309; color: #fff; }
+.btn-ghost { background: var(--slate); color: var(--steel); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--border); }
+.btn-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; }
+table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.data th {
+  background: var(--slate); padding: 9px 12px; text-align: left;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--muted); border-bottom: 2px solid var(--border);
+}
+table.data td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+table.data tr:last-child td { border-bottom: none; }
+table.data tr:hover td { background: #f8fafd; }
+.mono { font-family: 'Courier New', monospace; font-size: 12px; background: var(--slate);
+  padding: 2px 7px; border-radius: 4px; }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.tag.rh   { background: #dbeafe; color: #1d4ed8; }
+.tag.lh   { background: #fce7f3; color: #be185d; }
+.tag.gen  { background: #f3f4f6; color: #374151; }
+.tag.ok   { background: #dcfce7; color: var(--green); }
+.tag.bad  { background: #fee2e2; color: var(--red); }
+.tag.hold { background: #fef3c7; color: #92400e; }
+.tag.fg   { background: #ede9fe; color: #6d28d9; }
+.tag.disp { background: #d1fae5; color: #065f46; }
+.tag.prod-tag { background: #f3e8ff; color: #7c3aed; }
+.del-btn { background: none; border: none; color: var(--red); font-size: 15px; cursor: pointer; padding: 2px 6px; }
+.qty-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--steel); color: #fff; border-radius: 6px;
+  font-weight: 800; font-size: 15px; padding: 3px 12px; min-width: 48px;
+}
+.qty-badge.low { background: var(--red); }
+.qty-badge.ok  { background: var(--green); }
+
+/* ── RESULT ALERT ── */
+.alert { border-radius: 10px; padding: 14px 18px; margin-top: 14px; border: 2px solid; display: none; }
+.alert.ok   { background: #f0fdf4; border-color: var(--green2); }
+.alert.bad  { background: #fef2f2; border-color: var(--red2); }
+.alert.warn { background: #fffbeb; border-color: var(--amber2); }
+.alert-title { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+.alert.ok   .alert-title { color: var(--green); }
+.alert.bad  .alert-title { color: var(--red); }
+.alert.warn .alert-title { color: #92400e; }
+.alert-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 10px; }
+.alert-item { background: rgba(255,255,255,0.7); border-radius: 7px; padding: 8px 12px; }
+.alert-item-lbl { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; }
+.alert-item-val { font-size: 15px; font-weight: 800; margin-top: 2px; }
+
+/* ── BIN VISUAL ── */
+.bins-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 12px; margin-top: 4px; }
+.bin-card {
+  border-radius: 10px; border: 2px solid var(--border);
+  padding: 14px 12px; text-align: center; cursor: pointer;
+  transition: all 0.18s; background: var(--white);
+}
+.bin-card:hover { border-color: var(--mid); box-shadow: 0 2px 10px rgba(30,94,158,0.12); }
+.bin-card.selected { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(232,148,10,0.18); }
+.bin-card.empty-bin { border-style: dashed; opacity: 0.5; }
+.bin-icon { font-size: 28px; margin-bottom: 6px; }
+.bin-name { font-size: 12px; font-weight: 800; color: var(--steel); }
+.bin-partno { font-size: 10px; color: var(--muted); margin: 2px 0 6px; }
+.bin-qty { font-size: 22px; font-weight: 900; }
+.bin-qty.full  { color: var(--green); }
+.bin-qty.low   { color: var(--amber); }
+.bin-qty.empty { color: var(--red); }
+.bin-std { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* ── FLOW DIAGRAM ── */
+.flow { display: flex; align-items: center; gap: 0; margin-bottom: 22px; }
+.flow-step {
+  flex: 1; padding: 14px 16px; border-radius: 10px; text-align: center;
+  border: 2px solid var(--border); background: var(--white);
+}
+.flow-step h3 { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+.flow-step p  { font-size: 11px; color: var(--muted); }
+.flow-step.s1 { border-color: #a78bfa; background: #faf5ff; }
+.flow-step.s2 { border-color: var(--sky); background: #eff6ff; }
+.flow-step.s3 { border-color: var(--green2); background: #f0fdf4; }
+.flow-arrow { font-size: 22px; color: var(--muted); flex-shrink: 0; padding: 0 6px; }
+
+/* ── DOC PREVIEW ── */
+.doc-wrap { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 32px 36px; margin-top: 18px; }
+.doc-co { font-size: 19px; font-weight: 900; color: var(--steel); }
+.doc-co-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.doc-divider { border: none; border-top: 3px solid var(--steel); margin: 12px 0; }
+.doc-type-lbl { float: right; margin-top: -36px; background: var(--steel); color: #fff;
+  padding: 6px 18px; border-radius: 6px; font-weight: 700; font-size: 13px; letter-spacing: 1px; }
+.doc-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+.doc-meta-box { background: var(--slate); border-radius: 8px; padding: 10px 14px; border: 1px solid var(--border); }
+.doc-meta-lbl { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.doc-meta-val { font-size: 13px; font-weight: 700; margin-top: 3px; }
+.doc-meta-sub { font-size: 11px; color: var(--muted); }
+table.inv { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 12.5px; }
+table.inv th { background: var(--steel); color: #fff; padding: 8px 10px; text-align: left; font-size: 11px; text-transform: uppercase; }
+table.inv td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+table.inv tr:nth-child(even) td { background: #f8fafd; }
+.inv-totals { text-align: right; margin-top: 8px; }
+.inv-totals table { margin-left: auto; min-width: 200px; }
+.inv-totals td { padding: 4px 10px; font-size: 13px; }
+.inv-totals .inv-total-row td { font-weight: 900; font-size: 15px; color: var(--steel); border-top: 2px solid var(--steel); padding-top: 8px; }
+.doc-sign { display: flex; justify-content: space-between; margin-top: 36px; }
+.doc-sign-box { text-align: center; }
+.doc-sign-line { border-top: 1.5px solid var(--ink); width: 130px; margin: 0 auto 4px; }
+.doc-sign-lbl { font-size: 10px; color: var(--muted); }
+.doc-words { margin-top: 12px; padding: 10px 14px; background: var(--slate); border-radius: 7px; font-size: 12px; }
+
+/* ── LOG ── */
+.log-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border); background: var(--white); }
+.log-item.ok   { border-left: 4px solid var(--green2); }
+.log-item.bad  { border-left: 4px solid var(--red2); }
+.log-item.hold { border-left: 4px solid var(--amber2); }
+.log-item.info { border-left: 4px solid var(--sky); }
+.log-stage { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted); width: 70px; flex-shrink: 0; }
+.log-main  { flex: 1; font-size: 13px; font-weight: 600; }
+.log-sub   { font-size: 11px; color: var(--muted); font-weight: 400; }
+.log-time  { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+
+.empty-state { text-align: center; padding: 36px; color: var(--muted); font-size: 13px; }
+.empty-icon  { font-size: 40px; opacity: 0.25; margin-bottom: 8px; }
+
+@media (max-width: 640px) {
+  .stat-row    { grid-template-columns: 1fr 1fr; }
+  .form-grid.cols3, .form-grid.cols4 { grid-template-columns: 1fr; }
+  .form-grid.cols2 { grid-template-columns: 1fr; }
+  .alert-grid  { grid-template-columns: 1fr 1fr; }
+  .flow        { flex-direction: column; }
+  .flow-arrow  { transform: rotate(90deg); }
+  .topbar-nav  { overflow-x: auto; }
+  .nav-btn     { padding: 0 12px; font-size: 12px; }
+  .doc-wrap    { padding: 16px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="initials">UP</div>
+    <div>
+      <h1>Unitech Plasto Components</h1>
+      <p>Plant Management System · Kharabwadi, Pune</p>
+    </div>
+  </div>
+  <nav class="topbar-nav">
+    <button class="nav-btn active" onclick="goPage('dashboard')">📊 Dashboard</button>
+    <button class="nav-btn" onclick="goPage('production')">⚙️ Production <span class="nav-num" id="nb-prod">0</span></button>
+    <button class="nav-btn" onclick="goPage('fgstock')">📦 FG Stock <span class="nav-num" id="nb-fg">0</span></button>
+    <button class="nav-btn" onclick="goPage('dispatch')">🚚 Dispatch <span class="nav-num" id="nb-disp">0</span></button>
+    <button class="nav-btn" onclick="goPage('predispatch')">📋 Pre-Dispatch <span class="nav-num" id="nb-pd">0</span></button>
+    <button class="nav-btn" onclick="goPage('parts')">🔧 Part Master</button>
+    <button class="nav-btn" onclick="goPage('ai')" style="background:rgba(139,92,246,0.15);color:#c4b5fd">🤖 AI Assistant <span class="nav-num" id="nb-ai" style="background:#7c3aed">0</span></button>
+  </nav>
+  <div class="topbar-right">
+    <div class="clock"><strong id="clockTime">--:--</strong><span id="clockDate">--</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: DASHBOARD
+══════════════════════════════════════════════ -->
+<div class="page active" id="page-dashboard">
+  <div style="margin-bottom:22px">
+    <div class="section-title">
+      <div>
+        <h2>Plant Overview</h2>
+        <p>Live snapshot across all three stages</p>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-step s1">
+        <div style="font-size:24px;margin-bottom:6px">⚙️</div>
+        <h3>Stage 1 — Production Hall</h3>
+        <p id="dash-prod-line">~20 moulding machines</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step s2">
+        <div style="font-size:24px;margin-bottom:6px">📦</div>
+        <h3>Stage 2 — FG Stock</h3>
+        <p id="dash-fg-line">Bins by part & variant</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="border-color:#0e7490;background:#ecfeff;flex:1">
+        <div style="font-size:24px;margin-bottom:6px">📋</div>
+        <h3>Stage 2.5 — Pre-Dispatch</h3>
+        <p id="dash-pd-line">PDI sent for customer approval</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step s3">
+        <div style="font-size:24px;margin-bottom:6px">🚚</div>
+        <h3>Stage 3 — Dispatch</h3>
+        <p id="dash-disp-line">Verify → Invoice → Ship</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat v-purple"><div class="stat-val" id="ds-prod">0</div><div class="stat-lbl">Production Entries Today</div></div>
+    <div class="stat v-blue"><div class="stat-val" id="ds-fg">0</div><div class="stat-lbl">Bins in FG Stock</div></div>
+    <div class="stat v-green"><div class="stat-val" id="ds-disp">0</div><div class="stat-lbl">Dispatched Today</div></div>
+    <div class="stat v-red"><div class="stat-val" id="ds-rej">0</div><div class="stat-lbl">Rejections Today</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head blue"><span>📋 Recent Activity — All Stages</span></div>
+    <div class="card-body" style="padding:14px">
+      <div id="activityLog"><div class="empty-state"><div class="empty-icon">📋</div>Activity will appear here as you use the system</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: PRODUCTION
+══════════════════════════════════════════════ -->
+<div class="page" id="page-production">
+  <div class="section-title">
+    <span class="stage-pill prod">Stage 1</span>
+    <div><h2>Production Hall</h2><p>Record output from moulding machines → send to FG Stock</p></div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat v-purple"><div class="stat-val" id="prod-total">0</div><div class="stat-lbl">Batches Today</div></div>
+    <div class="stat v-green"><div class="stat-val" id="prod-qty">0</div><div class="stat-lbl">Parts Produced</div></div>
+    <div class="stat v-red"><div class="stat-val" id="prod-rej">0</div><div class="stat-lbl">Rejections</div></div>
+    <div class="stat v-amber"><div class="stat-val" id="prod-machines">0</div><div class="stat-lbl">Machines Active</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head purple"><span>⚙️ Record Production Output</span></div>
+    <div class="card-body">
+      <div class="form-grid cols3">
+        <div class="f-group">
+          <label>Machine No.</label>
+          <select id="prod-machine">
+            <option value="">Select machine</option>
+            <option>Machine 01</option><option>Machine 02</option><option>Machine 03</option>
+            <option>Machine 04</option><option>Machine 05</option><option>Machine 06</option>
+            <option>Machine 07</option><option>Machine 08</option><option>Machine 09</option>
+            <option>Machine 10</option><option>Machine 11</option><option>Machine 12</option>
+            <option>Machine 13</option><option>Machine 14</option><option>Machine 15</option>
+            <option>Machine 16</option><option>Machine 17</option><option>Machine 18</option>
+            <option>Machine 19</option><option>Machine 20</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Part Name</label>
+          <select id="prod-part" onchange="onProdPartChange()">
+            <option value="">Select part</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Variant</label>
+          <select id="prod-variant">
+            <option value="General">General (no variant)</option>
+            <option value="RH">RH — Right Hand</option>
+            <option value="LH">LH — Left Hand</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid cols4" style="margin-top:12px">
+        <div class="f-group">
+          <label>Qty Produced (Good)</label>
+          <input type="number" id="prod-qty-good" placeholder="e.g. 280" min="0" />
+        </div>
+        <div class="f-group">
+          <label>Qty Rejected</label>
+          <input type="number" id="prod-qty-bad" placeholder="0" min="0" value="0" />
+        </div>
+        <div class="f-group">
+          <label>Operator Name</label>
+          <input type="text" id="prod-operator" placeholder="Operator name" />
+        </div>
+        <div class="f-group">
+          <label>Shift</label>
+          <select id="prod-shift">
+            <option>Morning (6AM–2PM)</option>
+            <option>Afternoon (2PM–10PM)</option>
+            <option>Night (10PM–6AM)</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-blue" onclick="recordProduction()">✔ Record & Send to FG Stock</button>
+        <button class="btn btn-ghost" onclick="clearProdForm()">Clear</button>
+      </div>
+      <div class="alert" id="prod-alert"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head purple"><span>📋 Today's Production Log</span><button class="head-action" onclick="exportCSV('prod')">⬇ Export</button></div>
+    <div class="card-body" style="padding:0">
+      <div class="tbl-wrap">
+        <table class="data">
+          <thead><tr><th>Time</th><th>Machine</th><th>Part</th><th>Variant</th><th>Good Qty</th><th>Rejected</th><th>Operator</th><th>Shift</th><th>Status</th></tr></thead>
+          <tbody id="prod-log-body"><tr><td colspan="9"><div class="empty-state"><div class="empty-icon">⚙️</div>No production recorded yet</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: FG STOCK
+══════════════════════════════════════════════ -->
+<div class="page" id="page-fgstock">
+  <div class="section-title">
+    <span class="stage-pill fg">Stage 2</span>
+    <div><h2>Finished Goods Stock</h2><p>Live bin quantities — parts received from Production, dispatched to Dispatch</p></div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat v-blue"><div class="stat-val" id="fg-total-bins">0</div><div class="stat-lbl">Active Bins</div></div>
+    <div class="stat v-green"><div class="stat-val" id="fg-total-qty">0</div><div class="stat-lbl">Total Parts</div></div>
+    <div class="stat v-amber"><div class="stat-val" id="fg-low">0</div><div class="stat-lbl">Low Stock Bins</div></div>
+    <div class="stat v-red"><div class="stat-val" id="fg-empty">0</div><div class="stat-lbl">Empty Bins</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head blue"><span>📦 Live Bin Stock — Visual View</span>
+      <button class="head-action" onclick="toggleFGView()" id="fgViewBtn">Switch to Table</button>
+    </div>
+    <div class="card-body">
+      <div id="fg-bins-grid" class="bins-grid"></div>
+      <div id="fg-table-view" style="display:none">
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Part Name</th><th>Part No.</th><th>Variant</th><th>Bin ID</th><th>Current Qty</th><th>Std Qty/Bin</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="fg-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head blue"><span>➕ Manual Stock Adjustment</span></div>
+    <div class="card-body">
+      <div class="form-grid cols4">
+        <div class="f-group">
+          <label>Part</label>
+          <select id="fg-adj-part">
+            <option value="">Select part</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Variant</label>
+          <select id="fg-adj-variant">
+            <option value="General">General</option>
+            <option value="RH">RH</option>
+            <option value="LH">LH</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Qty to Add / Remove</label>
+          <input type="number" id="fg-adj-qty" placeholder="e.g. +50 or -10" />
+        </div>
+        <div class="f-group">
+          <label>Reason</label>
+          <select id="fg-adj-reason">
+            <option>Cycle Count Correction</option>
+            <option>Production Transfer</option>
+            <option>Damage / Scrap</option>
+            <option>Customer Return (Inward)</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-blue" onclick="adjustFGStock()">Apply Adjustment</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: DISPATCH
+══════════════════════════════════════════════ -->
+<div class="page" id="page-dispatch">
+  <div class="section-title">
+    <span class="stage-pill disp">Stage 3</span>
+    <div><h2>Dispatch</h2><p>Verify bins → Generate Invoice / Challan → Log shipment</p></div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat v-green"><div class="stat-val" id="disp-ok">0</div><div class="stat-lbl">Accepted Today</div></div>
+    <div class="stat v-red"><div class="stat-val" id="disp-rej">0</div><div class="stat-lbl">Rejected Today</div></div>
+    <div class="stat v-amber"><div class="stat-val" id="disp-hold">0</div><div class="stat-lbl">On Hold</div></div>
+    <div class="stat v-blue"><div class="stat-val" id="disp-invoiced">0</div><div class="stat-lbl">Invoices Generated</div></div>
+  </div>
+
+  <!-- BIN VERIFICATION -->
+  <div class="card">
+    <div class="card-head green"><span>🔍 Step 1 — Bin Verification</span></div>
+    <div class="card-body">
+      <div class="form-grid cols3">
+        <div class="f-group">
+          <label>Part Name</label>
+          <select id="disp-part" onchange="onDispPartChange()">
+            <option value="">Select part</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Variant</label>
+          <select id="disp-variant">
+            <option value="General">General</option>
+            <option value="RH">RH — Right Hand</option>
+            <option value="LH">LH — Left Hand</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Bin / Lot No.</label>
+          <input type="text" id="disp-bin" placeholder="e.g. BIN-042" />
+        </div>
+      </div>
+      <div class="form-grid cols3" style="margin-top:12px">
+        <div class="f-group">
+          <label>Actual Count in Bin</label>
+          <input type="number" id="disp-count" placeholder="Count and enter" min="0" />
+        </div>
+        <div class="f-group">
+          <label>Engineer Name</label>
+          <input type="text" id="disp-engineer" placeholder="Your name" />
+        </div>
+        <div class="f-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-green" style="width:100%;padding:9px" onclick="verifyDispBin()">CHECK BIN ✓</button>
+        </div>
+      </div>
+      <div class="alert" id="disp-alert"></div>
+      <div class="btn-row" id="disp-action-btns" style="display:none">
+        <button class="btn btn-green" onclick="dispAction('ACCEPT')">✔ Accept Bin</button>
+        <button class="btn" style="background:var(--amber);color:var(--ink)" onclick="dispAction('HOLD')">⏸ Hold</button>
+        <button class="btn btn-red" onclick="dispAction('REJECT')">✖ Reject Bin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVOICE GENERATOR -->
+  <div class="card">
+    <div class="card-head green"><span>📄 Step 2 — Generate Invoice / Delivery Challan</span></div>
+    <div class="card-body">
+
+      <!-- ROW 1: Doc type + Customer -->
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px">Customer & Document</div>
+      <div class="form-grid cols3" style="margin-bottom:12px">
+        <div class="f-group">
+          <label>Document Type</label>
+          <select id="inv-type">
+            <option value="invoice">Tax Invoice</option>
+            <option value="challan">Delivery Challan</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Customer Name</label>
+          <input type="text" id="inv-customer" placeholder="e.g. Uno Mindarika Pvt. Ltd." list="cust-list" />
+          <datalist id="cust-list">
+            <option>UNO MINDARIKA PRIVATE LIMITED-PUNE</option>
+            <option>Bajaj Auto Ltd.</option><option>TVS Motor Company</option>
+            <option>Tata Motors Ltd.</option><option>Mahindra &amp; Mahindra</option>
+            <option>Hero MotoCorp</option><option>Honda Motorcycle &amp; Scooter India</option>
+          </datalist>
+        </div>
+        <div class="f-group">
+          <label>Customer PO No.</label>
+          <input type="text" id="inv-po" placeholder="e.g. 5500046405" />
+        </div>
+      </div>
+      <div class="form-grid cols2" style="margin-bottom:12px">
+        <div class="f-group">
+          <label>Customer GSTIN</label>
+          <input type="text" id="inv-cust-gstin" placeholder="e.g. 27AAACM8583F1Z8" />
+        </div>
+        <div class="f-group">
+          <label>Customer Address / Shipping To</label>
+          <input type="text" id="inv-cust-addr" placeholder="e.g. GAT NO 427/5, Chakan-Talegaon Rd, Pune-410501" />
+        </div>
+      </div>
+
+      <!-- ROW 2: Part details -->
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;margin-top:4px">Part Details</div>
+      <div class="form-grid cols3">
+        <div class="f-group">
+          <label>Part Name</label>
+          <select id="inv-part" onchange="onInvPartChange()"><option value="">Select</option></select>
+        </div>
+        <div class="f-group">
+          <label>Variant</label>
+          <select id="inv-variant">
+            <option value="General">General</option>
+            <option value="RH">RH</option>
+            <option value="LH">LH</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Dispatch Qty</label>
+          <input type="number" id="inv-qty" placeholder="e.g. 3300" min="1" />
+        </div>
+      </div>
+      <div class="form-grid cols3" style="margin-top:12px">
+        <div class="f-group">
+          <label>Rate per Unit (₹)</label>
+          <input type="number" id="inv-rate" placeholder="e.g. 2.94" min="0" step="0.01" />
+        </div>
+        <div class="f-group">
+          <label>GST %</label>
+          <select id="inv-gst">
+            <option value="5">5%</option>
+            <option value="12">12%</option>
+            <option value="18" selected>18% (CGST 9% + SGST 9%)</option>
+            <option value="28">28%</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>No. of Bins</label>
+          <input type="number" id="inv-bins" placeholder="e.g. 10" min="0" value="0" />
+        </div>
+      </div>
+
+      <!-- ROW 3: Transport -->
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;margin-top:14px">Transport Details</div>
+      <div class="form-grid cols4">
+        <div class="f-group">
+          <label>Transporter</label>
+          <input type="text" id="inv-transporter" placeholder="e.g. By Road" />
+        </div>
+        <div class="f-group">
+          <label>Vehicle No.</label>
+          <input type="text" id="inv-vehicle" placeholder="e.g. MH14MH8671" />
+        </div>
+        <div class="f-group">
+          <label>Driver Name</label>
+          <input type="text" id="inv-driver" placeholder="Driver name" />
+        </div>
+        <div class="f-group">
+          <label>E-Way Bill No.</label>
+          <input type="text" id="inv-eway" placeholder="e.g. 232235038697" />
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="generateDoc()">📄 Generate Document</button>
+        <button class="btn btn-ghost" onclick="clearInvForm()">Clear</button>
+        <button class="btn btn-amber" onclick="window.print()" style="display:none" id="printBtn">🖨 Print</button>
+      </div>
+      <div id="doc-preview-wrap"></div>
+    </div>
+  </div>
+
+  <!-- DISPATCH LOG -->
+  <div class="card">
+    <div class="card-head green"><span>📋 Shift Dispatch Log</span>
+      <button class="head-action" onclick="exportCSV('disp')">⬇ Export CSV</button>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div class="tbl-wrap">
+        <table class="data">
+          <thead><tr><th>Time</th><th>Part</th><th>Variant</th><th>Bin</th><th>Exp.Qty</th><th>Act.Qty</th><th>Result</th><th>Engineer</th></tr></thead>
+          <tbody id="disp-log-body"><tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🚚</div>No dispatch entries yet</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: PART MASTER
+══════════════════════════════════════════════ -->
+<div class="page" id="page-parts">
+  <div class="section-title">
+    <div><h2>Part Master</h2><p>Add and manage all parts, standard bin quantities, and HSN codes</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head amber"><span>➕ Add New Part</span></div>
+    <div class="card-body">
+      <div class="form-grid cols4">
+        <div class="f-group">
+          <label>Part Name</label>
+          <input type="text" id="pm-name" placeholder="e.g. Scalp Ridge" />
+        </div>
+        <div class="f-group">
+          <label>Part No.</label>
+          <input type="text" id="pm-no" placeholder="e.g. UPC-SR-01" />
+        </div>
+        <div class="f-group">
+          <label>Std. Qty per Bin</label>
+          <input type="number" id="pm-qty" placeholder="e.g. 28" min="1" />
+        </div>
+        <div class="f-group">
+          <label>Tolerance ±</label>
+          <input type="number" id="pm-tol" placeholder="0" min="0" value="0" />
+        </div>
+      </div>
+      <div class="form-grid cols4" style="margin-top:12px">
+        <div class="f-group">
+          <label>HSN Code</label>
+          <input type="text" id="pm-hsn" placeholder="e.g. 3926" value="3926" />
+        </div>
+        <div class="f-group">
+          <label>Default GST %</label>
+          <select id="pm-gst">
+            <option>5</option><option>12</option><option selected>18</option><option>28</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Has RH / LH Variants?</label>
+          <select id="pm-variants">
+            <option value="no">No — General only</option>
+            <option value="yes">Yes — RH and LH</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Low Stock Alert Below</label>
+          <input type="number" id="pm-low" placeholder="e.g. 50" min="0" value="50" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-amber" onclick="addPart()">+ Add to Master</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head amber"><span>🔧 All Parts</span></div>
+    <div class="card-body" style="padding:0">
+      <div class="tbl-wrap">
+        <table class="data">
+          <thead><tr><th>Part Name</th><th>Part No.</th><th>Std Qty/Bin</th><th>Tolerance</th><th>Variants</th><th>HSN</th><th>GST%</th><th>Low Alert</th><th></th></tr></thead>
+          <tbody id="parts-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: PRE-DISPATCH INVOICE
+══════════════════════════════════════════════ -->
+<div class="page" id="page-predispatch">
+  <div class="section-title">
+    <span class="stage-pill" style="background:#0e7490">Stage 2.5</span>
+    <div><h2>Pre-Dispatch Invoice</h2><p>Create a proforma / pre-dispatch invoice before goods leave FG Stock — for customer approval or advance planning</p></div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat v-blue"><div class="stat-val" id="pd-total">0</div><div class="stat-lbl">PDIs Created</div></div>
+    <div class="stat v-amber"><div class="stat-val" id="pd-pending">0</div><div class="stat-lbl">Pending Approval</div></div>
+    <div class="stat v-green"><div class="stat-val" id="pd-approved">0</div><div class="stat-lbl">Approved</div></div>
+    <div class="stat v-red"><div class="stat-val" id="pd-converted">0</div><div class="stat-lbl">Converted to Invoice</div></div>
+  </div>
+
+  <!-- FORM -->
+  <div class="card">
+    <div class="card-head" style="background:#0e7490"><span>📋 Create Pre-Dispatch Invoice</span></div>
+    <div class="card-body">
+
+      <!-- Customer & Doc Info -->
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px">Customer & Document Info</div>
+      <div class="form-grid cols3" style="margin-bottom:14px">
+        <div class="f-group">
+          <label>Customer Name</label>
+          <input type="text" id="pd-customer" placeholder="e.g. Bajaj Auto Ltd." list="pd-cust-list" />
+          <datalist id="pd-cust-list">
+            <option>Bajaj Auto Ltd.</option><option>TVS Motor Company</option>
+            <option>Tata Motors Ltd.</option><option>Mahindra & Mahindra</option>
+            <option>Hero MotoCorp</option><option>Honda Motorcycle & Scooter India</option>
+          </datalist>
+        </div>
+        <div class="f-group">
+          <label>Customer PO Number</label>
+          <input type="text" id="pd-po" placeholder="e.g. PO/BAL/2526/0891" />
+        </div>
+        <div class="f-group">
+          <label>Expected Dispatch Date</label>
+          <input type="date" id="pd-date" />
+        </div>
+      </div>
+      <div class="form-grid cols3" style="margin-bottom:18px">
+        <div class="f-group">
+          <label>Customer GSTIN</label>
+          <input type="text" id="pd-gstin" placeholder="e.g. 27AAACB1234M1ZX" />
+        </div>
+        <div class="f-group">
+          <label>Delivery Address / Plant</label>
+          <input type="text" id="pd-address" placeholder="e.g. Bajaj Auto, Waluj, Aurangabad" />
+        </div>
+        <div class="f-group">
+          <label>Payment Terms</label>
+          <select id="pd-payment">
+            <option>30 days from dispatch</option>
+            <option>45 days from dispatch</option>
+            <option>60 days from dispatch</option>
+            <option>Advance Payment</option>
+            <option>Against Delivery</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Line Items -->
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px">
+        Line Items <span style="color:var(--muted);font-weight:400;text-transform:none">(add multiple parts)</span>
+      </div>
+      <div id="pd-items-container">
+        <!-- items added here -->
+      </div>
+      <button class="btn btn-ghost" style="width:100%;margin-top:6px;border-style:dashed" onclick="addPDItem()">+ Add Part Line</button>
+
+      <!-- Totals & Notes -->
+      <div class="form-grid cols2" style="margin-top:16px">
+        <div class="f-group">
+          <label>Remarks / Special Instructions</label>
+          <input type="text" id="pd-remarks" placeholder="e.g. Urgent dispatch, packing as per CPI-Bajaj-2024" />
+        </div>
+        <div class="f-group">
+          <label>Prepared By</label>
+          <input type="text" id="pd-preparedby" placeholder="Your name" />
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" style="background:#0e7490;color:#fff" onclick="generatePDI()">📋 Generate Pre-Dispatch Invoice</button>
+        <button class="btn btn-ghost" onclick="clearPDForm()">Clear</button>
+        <button class="btn btn-amber" id="pd-print-btn" style="display:none" onclick="window.print()">🖨 Print PDI</button>
+      </div>
+      <div class="alert" id="pd-alert"></div>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div id="pd-preview-wrap"></div>
+
+  <!-- PDI LOG -->
+  <div class="card" style="margin-top:18px">
+    <div class="card-head" style="background:#0e7490"><span>📋 Pre-Dispatch Invoice Register</span>
+      <button class="head-action" onclick="exportCSV('pd')">⬇ Export CSV</button>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div class="tbl-wrap">
+        <table class="data">
+          <thead><tr><th>PDI No.</th><th>Date</th><th>Customer</th><th>PO No.</th><th>Parts</th><th>Total Qty</th><th>Total Value</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="pd-log-body"><tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div>No pre-dispatch invoices created yet</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════  SCRIPTS  ══════════════════════════════════════════════ -->
+<script>
+// ═══════════════════════════════
+// DATA STORE
+// ═══════════════════════════════
+let parts = [
+  { name:'Scalp Ridge', no:'UPC-SR-01', stdQty:28, tol:0, hsn:'3926', gst:18, variants:true, lowAlert:50 },
+  { name:'Bumper Bracket', no:'UPC-205', stdQty:50, tol:2, hsn:'3926', gst:18, variants:true, lowAlert:100 },
+  { name:'Clip Assembly', no:'UPC-309', stdQty:100, tol:5, hsn:'3926', gst:12, variants:false, lowAlert:200 },
+  { name:'Dashboard Panel', no:'UPC-412', stdQty:20, tol:0, hsn:'3926', gst:18, variants:true, lowAlert:40 },
+  { name:'Cover Plate', no:'UPC-101', stdQty:48, tol:2, hsn:'3926', gst:18, variants:false, lowAlert:96 },
+  { name:'Knob Small', no:'UPC-502', stdQty:200, tol:10, hsn:'8708', gst:28, variants:false, lowAlert:300 },
+];
+
+// FG Stock: key = "partName|variant"
+let fgStock = {};
+let prodLog = [], dispLog = [], actLog = [];
+let stats = { prod:0, fg:0, disp:0, rej:0, dispOk:0, dispRej:0, dispHold:0, invoiced:0 };
+let currentDispResult = null;
+let docCounter = { inv:1001, dc:2001 };
+
+// Init FG bins
+function initFGStock() {
+  parts.forEach(p => {
+    if (p.variants) {
+      ['RH','LH'].forEach(v => {
+        const k = `${p.name}|${v}`;
+        if (!(k in fgStock)) fgStock[k] = 0;
+      });
+    } else {
+      const k = `${p.name}|General`;
+      if (!(k in fgStock)) fgStock[k] = 0;
+    }
+  });
+}
+
+// ═══════════════════════════════
+// CLOCK
+// ═══════════════════════════════
+function tick() {
+  const n = new Date();
+  document.getElementById('clockTime').textContent = n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('clockDate').textContent = n.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+}
+tick(); setInterval(tick, 1000);
+
+// ═══════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (id==='fgstock') renderFGStock();
+  if (id==='parts') renderPartsTable();
+  if (id==='production' || id==='dispatch' || id==='predispatch') populatePartSelects();
+  if (id==='predispatch') { renderPDILog(); updatePDIStats(); if (!pdItems.length) addPDItem(); }
+  if (id==='ai') { renderAIRecords(); }
+}
+
+// ═══════════════════════════════
+// PART SELECTS
+// ═══════════════════════════════
+function populatePartSelects() {
+  ['prod-part','fg-adj-part','disp-part','inv-part'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = '<option value="">Select part</option>' +
+      parts.map(p => `<option value="${p.name}">${p.name} (${p.no})</option>`).join('');
+    if (cur) el.value = cur;
+  });
+}
+
+function onProdPartChange() {
+  const p = parts.find(x => x.name === document.getElementById('prod-part').value);
+  if (!p) return;
+  const vSel = document.getElementById('prod-variant');
+  vSel.innerHTML = p.variants
+    ? '<option value="RH">RH — Right Hand</option><option value="LH">LH — Left Hand</option>'
+    : '<option value="General">General (no variant)</option>';
+}
+
+function onDispPartChange() {
+  const p = parts.find(x => x.name === document.getElementById('disp-part').value);
+  if (!p) return;
+  const vSel = document.getElementById('disp-variant');
+  vSel.innerHTML = p.variants
+    ? '<option value="RH">RH — Right Hand</option><option value="LH">LH — Left Hand</option>'
+    : '<option value="General">General (no variant)</option>';
+}
+
+function onInvPartChange() {
+  const p = parts.find(x => x.name === document.getElementById('inv-part').value);
+  if (!p) return;
+  const vSel = document.getElementById('inv-variant');
+  vSel.innerHTML = p.variants
+    ? '<option value="RH">RH — Right Hand</option><option value="LH">LH — Left Hand</option>'
+    : '<option value="General">General (no variant)</option>';
+  document.getElementById('inv-gst').value = p.gst;
+}
+
+// ═══════════════════════════════
+// PRODUCTION
+// ═══════════════════════════════
+function recordProduction() {
+  const machine  = document.getElementById('prod-machine').value;
+  const partName = document.getElementById('prod-part').value;
+  const variant  = document.getElementById('prod-variant').value;
+  const good     = parseInt(document.getElementById('prod-qty-good').value) || 0;
+  const bad      = parseInt(document.getElementById('prod-qty-bad').value)  || 0;
+  const operator = document.getElementById('prod-operator').value.trim();
+  const shift    = document.getElementById('prod-shift').value;
+
+  if (!machine || !partName || good <= 0) {
+    showAlert('prod-alert','warn','⚠ Missing Info','Please select machine, part and enter qty produced.'); return;
+  }
+
+  const now = new Date();
+  const time = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+  // Add to FG Stock
+  const key = `${partName}|${variant}`;
+  fgStock[key] = (fgStock[key] || 0) + good;
+
+  // Log
+  const entry = { time, machine, partName, variant, good, bad, operator: operator||'—', shift };
+  prodLog.unshift(entry);
+  stats.prod++;
+  stats.fg = Object.keys(fgStock).filter(k => fgStock[k] > 0).length;
+  stats.rej += bad;
+
+  addActivity('prod', `${partName} (${variant}) — ${good} pcs from ${machine}`, bad > 0 ? `${bad} rejected` : 'No rejections', bad > 0 ? 'bad':'ok');
+  updateDashStats();
+  updateNavBadges();
+  renderProdLog();
+  showAlert('prod-alert','ok','✔ Recorded!',`${good} parts of ${partName} (${variant}) sent to FG Stock. ${bad > 0 ? bad+' pcs rejected.' : ''}`);
+  clearProdForm();
+}
+
+function renderProdLog() {
+  const tbody = document.getElementById('prod-log-body');
+  if (!prodLog.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">⚙️</div>No production recorded yet</div></td></tr>'; return; }
+  tbody.innerHTML = prodLog.map(e => `
+    <tr>
+      <td>${e.time}</td>
+      <td><span class="mono">${e.machine}</span></td>
+      <td><strong>${e.partName}</strong></td>
+      <td><span class="tag ${e.variant==='RH'?'rh':e.variant==='LH'?'lh':'gen'}">${e.variant}</span></td>
+      <td><strong style="color:var(--green)">${e.good}</strong></td>
+      <td>${e.bad > 0 ? `<strong style="color:var(--red)">${e.bad}</strong>` : '—'}</td>
+      <td>${e.operator}</td>
+      <td>${e.shift.split(' ')[0]}</td>
+      <td><span class="tag ok">Sent to FG</span></td>
+    </tr>`).join('');
+
+  // update prod stats
+  const totalGood = prodLog.reduce((a,e)=>a+e.good,0);
+  const totalBad  = prodLog.reduce((a,e)=>a+e.bad,0);
+  const machines  = [...new Set(prodLog.map(e=>e.machine))].length;
+  document.getElementById('prod-total').textContent = prodLog.length;
+  document.getElementById('prod-qty').textContent   = totalGood;
+  document.getElementById('prod-rej').textContent   = totalBad;
+  document.getElementById('prod-machines').textContent = machines;
+}
+
+function clearProdForm() {
+  ['prod-machine','prod-part','prod-variant'].forEach(id => document.getElementById(id).value = '');
+  ['prod-qty-good','prod-operator'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('prod-qty-bad').value = '0';
+}
+
+// ═══════════════════════════════
+// FG STOCK
+// ═══════════════════════════════
+let fgViewMode = 'grid';
+
+function toggleFGView() {
+  fgViewMode = fgViewMode === 'grid' ? 'table' : 'grid';
+  document.getElementById('fg-bins-grid').style.display   = fgViewMode==='grid'  ? 'grid' : 'none';
+  document.getElementById('fg-table-view').style.display  = fgViewMode==='table' ? 'block': 'none';
+  document.getElementById('fgViewBtn').textContent = fgViewMode==='grid' ? 'Switch to Table' : 'Switch to Grid';
+  renderFGStock();
+}
+
+function renderFGStock() {
+  const grid  = document.getElementById('fg-bins-grid');
+  const tbody = document.getElementById('fg-table-body');
+  const keys  = Object.keys(fgStock);
+
+  let totalBins = 0, totalQty = 0, lowCount = 0, emptyCount = 0;
+
+  const gridHTML = keys.map(k => {
+    const [pName, variant] = k.split('|');
+    const p = parts.find(x => x.name === pName);
+    if (!p) return '';
+    const qty = fgStock[k];
+    const isEmpty = qty === 0;
+    const isLow   = qty > 0 && qty < p.lowAlert;
+    if (!isEmpty) totalBins++;
+    totalQty += qty;
+    if (isEmpty) emptyCount++;
+    else if (isLow) lowCount++;
+
+    const qtyClass = isEmpty ? 'empty' : isLow ? 'low' : 'full';
+    const icon = variant==='RH' ? '📦' : variant==='LH' ? '📫' : '🗃️';
+    return `<div class="bin-card ${isEmpty?'empty-bin':''}">
+      <div class="bin-icon">${icon}</div>
+      <div class="bin-name">${pName}</div>
+      <div class="bin-partno"><span class="tag ${variant==='RH'?'rh':variant==='LH'?'lh':'gen'}">${variant}</span> · ${p.no}</div>
+      <div class="bin-qty ${qtyClass}">${qty}</div>
+      <div class="bin-std">Std: ${p.stdQty} / bin</div>
+    </div>`;
+  }).join('');
+
+  grid.innerHTML = gridHTML || '<div class="empty-state"><div class="empty-icon">📦</div>No bins yet. Record production first.</div>';
+
+  tbody.innerHTML = keys.map(k => {
+    const [pName, variant] = k.split('|');
+    const p = parts.find(x => x.name === pName);
+    if (!p) return '';
+    const qty = fgStock[k];
+    const isEmpty = qty === 0;
+    const isLow   = qty > 0 && qty < p.lowAlert;
+    const statusTag = isEmpty ? '<span class="tag bad">Empty</span>' : isLow ? '<span class="tag hold">Low</span>' : '<span class="tag ok">OK</span>';
+    return `<tr>
+      <td><strong>${pName}</strong></td>
+      <td><span class="mono">${p.no}</span></td>
+      <td><span class="tag ${variant==='RH'?'rh':variant==='LH'?'lh':'gen'}">${variant}</span></td>
+      <td>BIN-${pName.substring(0,3).toUpperCase()}-${variant}</td>
+      <td><span class="qty-badge ${isEmpty?'low':isLow?'low':'ok'}">${qty}</span></td>
+      <td>${p.stdQty}</td>
+      <td>${statusTag}</td>
+      <td><button class="btn btn-ghost" style="padding:4px 12px;font-size:12px" onclick="quickDeduct('${k}')">− Deduct</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8"><div class="empty-state">No FG stock yet</div></td></tr>';
+
+  // Update FG stats
+  document.getElementById('fg-total-bins').textContent = totalBins;
+  document.getElementById('fg-total-qty').textContent  = totalQty;
+  document.getElementById('fg-low').textContent        = lowCount;
+  document.getElementById('fg-empty').textContent      = emptyCount;
+  document.getElementById('nb-fg').textContent         = totalBins;
+  stats.fg = totalBins;
+  updateDashStats();
+}
+
+function adjustFGStock() {
+  const partName = document.getElementById('fg-adj-part').value;
+  const variant  = document.getElementById('fg-adj-variant').value;
+  const qty      = parseInt(document.getElementById('fg-adj-qty').value);
+  const reason   = document.getElementById('fg-adj-reason').value;
+  if (!partName || isNaN(qty)) { alert('Select part and enter quantity.'); return; }
+  const k = `${partName}|${variant}`;
+  fgStock[k] = Math.max(0, (fgStock[k]||0) + qty);
+  addActivity('fg', `Manual adjustment: ${partName} (${variant}) ${qty>0?'+':''}${qty}`, reason, qty>=0?'info':'bad');
+  renderFGStock();
+}
+
+function quickDeduct(key) {
+  const amt = parseInt(prompt('How many to deduct?','0'));
+  if (isNaN(amt) || amt <= 0) return;
+  fgStock[key] = Math.max(0, (fgStock[key]||0) - amt);
+  renderFGStock();
+}
+
+// ═══════════════════════════════
+// DISPATCH — BIN VERIFY
+// ═══════════════════════════════
+function verifyDispBin() {
+  const partName = document.getElementById('disp-part').value;
+  const variant  = document.getElementById('disp-variant').value;
+  const actual   = parseInt(document.getElementById('disp-count').value);
+  if (!partName) { showAlert('disp-alert','warn','⚠ Select Part','Please select a part first.'); return; }
+  if (isNaN(actual)) { showAlert('disp-alert','warn','⚠ Enter Count','Please enter the actual count.'); return; }
+
+  const p = parts.find(x => x.name === partName);
+  const key = `${partName}|${variant}`;
+  const fgQty = fgStock[key] || 0;
+  const diff  = actual - p.stdQty;
+  const absDiff = Math.abs(diff);
+  const within  = absDiff <= p.tol;
+
+  currentDispResult = { partName, variant, partNo: p.no, expected: p.stdQty, actual, diff, fgQty, tol: p.tol };
+
+  const alertEl = document.getElementById('disp-alert');
+  const actionEl = document.getElementById('disp-action-btns');
+
+  let cls, title, msg;
+
+  if (fgQty === 0) {
+    cls='warn'; title='⚠ No Stock in FG'; msg=`FG Stock shows 0 for ${partName} (${variant}). Verify with FG Store before proceeding.`;
+  } else if (actual === 0) {
+    cls='bad'; title='✖ Empty Bin — Reject!'; msg='Bin count is zero. Do not dispatch.';
+  } else if (within) {
+    cls='ok';
+    title = diff===0 ? '✔ Perfect Match!' : '✔ Within Tolerance — Acceptable';
+    msg = `Expected: <strong>${p.stdQty}</strong> | Actual: <strong>${actual}</strong> | Diff: <strong>${diff===0?'Exact':diff>0?'+'+diff:diff}</strong> | FG Stock: <strong>${fgQty} pcs available</strong>`;
+  } else {
+    cls='bad';
+    title = diff<0 ? `✖ SHORT by ${absDiff} parts` : `✖ EXCESS by ${absDiff} parts`;
+    msg = diff<0
+      ? `Bin has ${absDiff} fewer parts than standard of ${p.stdQty}. Recount or reject.`
+      : `Bin has ${absDiff} extra parts. Verify packing before dispatch.`;
+  }
+
+  alertEl.className = `alert ${cls}`;
+  alertEl.innerHTML = `<div class="alert-title">${title}</div><div style="font-size:13px">${msg}</div>
+    <div class="alert-grid">
+      <div class="alert-item"><div class="alert-item-lbl">Part</div><div class="alert-item-val">${partName}</div></div>
+      <div class="alert-item"><div class="alert-item-lbl">Variant</div><div class="alert-item-val"><span class="tag ${variant==='RH'?'rh':variant==='LH'?'lh':'gen'}">${variant}</span></div></div>
+      <div class="alert-item"><div class="alert-item-lbl">Expected</div><div class="alert-item-val">${p.stdQty}</div></div>
+      <div class="alert-item"><div class="alert-item-lbl">Actual Count</div><div class="alert-item-val">${actual}</div></div>
+      <div class="alert-item"><div class="alert-item-lbl">Difference</div><div class="alert-item-val">${diff===0?'0 ✓':diff>0?'+'+diff:diff}</div></div>
+      <div class="alert-item"><div class="alert-item-lbl">FG Stock Avail.</div><div class="alert-item-val">${fgQty} pcs</div></div>
+    </div>`;
+  alertEl.style.display = 'block';
+  actionEl.style.display = 'flex';
+}
+
+function dispAction(action) {
+  if (!currentDispResult) return;
+  const r = currentDispResult;
+  const time = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const engineer = document.getElementById('disp-engineer').value.trim() || 'Engineer';
+  const bin      = document.getElementById('disp-bin').value.trim() || '—';
+
+  const entry = { time, partName: r.partName, variant: r.variant, partNo: r.partNo,
+    expected: r.expected, actual: r.actual, diff: r.diff, bin, engineer, action };
+  dispLog.unshift(entry);
+
+  if (action==='ACCEPT') {
+    stats.dispOk++;
+    // Deduct from FG
+    const k = `${r.partName}|${r.variant}`;
+    fgStock[k] = Math.max(0, (fgStock[k]||0) - r.actual);
+    addActivity('dispatch', `ACCEPTED: ${r.partName} (${r.variant}) — ${r.actual} pcs`, `Bin: ${bin} | By: ${engineer}`, 'ok');
+  } else if (action==='REJECT') {
+    stats.dispRej++; stats.rej++;
+    addActivity('dispatch', `REJECTED: ${r.partName} (${r.variant}) — Bin: ${bin}`, `Diff: ${r.diff} | By: ${engineer}`, 'bad');
+  } else {
+    stats.dispHold++;
+    addActivity('dispatch', `ON HOLD: ${r.partName} (${r.variant}) — Bin: ${bin}`, `Pending recheck | By: ${engineer}`, 'hold');
+  }
+
+  stats.disp = stats.dispOk;
+  updateDashStats();
+  updateNavBadges();
+  renderDispLog();
+  renderFGStock();
+
+  // Reset
+  document.getElementById('disp-alert').style.display = 'none';
+  document.getElementById('disp-action-btns').style.display = 'none';
+  document.getElementById('disp-count').value = '';
+  document.getElementById('disp-bin').value = '';
+  currentDispResult = null;
+}
+
+function renderDispLog() {
+  const tbody = document.getElementById('disp-log-body');
+  if (!dispLog.length) { tbody.innerHTML='<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🚚</div>No dispatch entries yet</div></td></tr>'; return; }
+  tbody.innerHTML = dispLog.map(e => `
+    <tr>
+      <td>${e.time}</td>
+      <td><strong>${e.partName}</strong></td>
+      <td><span class="tag ${e.variant==='RH'?'rh':e.variant==='LH'?'lh':'gen'}">${e.variant}</span></td>
+      <td>${e.bin}</td>
+      <td>${e.expected}</td>
+      <td>${e.actual}</td>
+      <td><span class="tag ${e.action==='ACCEPT'?'ok':e.action==='REJECT'?'bad':'hold'}">${e.action}</span></td>
+      <td>${e.engineer}</td>
+    </tr>`).join('');
+  document.getElementById('disp-ok').textContent      = stats.dispOk;
+  document.getElementById('disp-rej').textContent     = stats.dispRej;
+  document.getElementById('disp-hold').textContent    = stats.dispHold;
+  document.getElementById('disp-invoiced').textContent= stats.invoiced;
+  document.getElementById('nb-disp').textContent = dispLog.length;
+}
+
+// ═══════════════════════════════
+// COMPANY CONSTANTS (from real invoice)
+// ═══════════════════════════════
+const CO = {
+  name:    'UNITECH PLASTO COMPONENTS PVT LTD',
+  addr1:   'FLOOR NO.: GROUND FLOOR, BUILDING NO./FLAT NO.: 258/1,',
+  addr2:   'PAWAR WASTI, TALEGAON CHAKAN ROAD, KHARABWADI',
+  addr3:   'KHED, CHAKAN – 410501, MAHARASHTRA, PUNE.',
+  gstin:   '27AAACU6211E1ZP',
+  pan:     'AAACU6211E',
+  state:   'Maharashtra',
+  stateCode: '27',
+};
+
+// ═══════════════════════════════
+// INVOICE / CHALLAN GENERATOR
+// ═══════════════════════════════
+function generateDoc() {
+  const type      = document.getElementById('inv-type').value;
+  const customer  = document.getElementById('inv-customer').value.trim();
+  const custGstin = document.getElementById('inv-cust-gstin') ? document.getElementById('inv-cust-gstin').value.trim() : '';
+  const custAddr  = document.getElementById('inv-cust-addr')  ? document.getElementById('inv-cust-addr').value.trim()  : '';
+  const po        = document.getElementById('inv-po')         ? document.getElementById('inv-po').value.trim()         : '';
+  const partName  = document.getElementById('inv-part').value;
+  const variant   = document.getElementById('inv-variant').value;
+  const qty       = parseInt(document.getElementById('inv-qty').value);
+  const rate      = parseFloat(document.getElementById('inv-rate').value);
+  const gstRate   = parseInt(document.getElementById('inv-gst').value);
+  const transport = document.getElementById('inv-transporter').value.trim();
+  const vehicle   = document.getElementById('inv-vehicle').value.trim();
+  const driver    = document.getElementById('inv-driver')    ? document.getElementById('inv-driver').value.trim()    : '';
+  const ewaybill  = document.getElementById('inv-eway')      ? document.getElementById('inv-eway').value.trim()      : '';
+
+  if (!customer || !partName || !qty || (type==='invoice' && !rate)) {
+    alert('Please fill all required fields.'); return;
+  }
+
+  const p       = parts.find(x => x.name === partName);
+  const now     = new Date();
+  const today   = now.toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'/');
+  const timeStr = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:false});
+  const docNum  = type==='invoice'
+    ? `${102990 + docCounter.inv}/26-27/U${docCounter.inv++}`
+    : `UPC/DC/26-27/${docCounter.dc++}`;
+
+  const subtotal = qty * rate;
+  const cgst     = type==='invoice' ? subtotal * (gstRate/2) / 100 : 0;
+  const sgst     = cgst;
+  const total    = subtotal + cgst + sgst;
+  const tcsAmt   = 0;
+  const grandTotal = total + tcsAmt;
+
+  stats.invoiced++;
+  document.getElementById('disp-invoiced').textContent = stats.invoiced;
+  addActivity('dispatch', `${type==='invoice'?'Invoice':'Challan'} ${docNum} — ${customer}`, `${partName} (${variant}) × ${qty}`, 'ok');
+
+  const wrap = document.getElementById('doc-preview-wrap');
+  document.getElementById('printBtn').style.display = 'inline-flex';
+
+  if (type === 'invoice') {
+    wrap.innerHTML = `
+    <div class="doc-wrap" id="printable-doc" style="font-family:'Times New Roman',serif;font-size:12px;padding:24px 28px">
+
+      <!-- HEADER -->
+      <div style="text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:10px">
+        <div style="font-size:18px;font-weight:900;letter-spacing:1px">TAX INVOICE</div>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;border:1.5px solid #000">
+        <tr>
+          <td style="width:55%;padding:10px 12px;border-right:1.5px solid #000;vertical-align:top">
+            <div style="font-size:14px;font-weight:900">${CO.name}</div>
+            <div style="font-size:11px;margin-top:4px">${CO.addr1}</div>
+            <div style="font-size:11px">${CO.addr2}</div>
+            <div style="font-size:11px">${CO.addr3}</div>
+            <div style="font-size:11px;margin-top:6px">GSTIN : <strong>${CO.gstin}</strong> &nbsp;&nbsp; PAN : <strong>${CO.pan}</strong></div>
+          </td>
+          <td style="padding:8px 12px;vertical-align:top;text-align:center">
+            <div style="font-size:11px;font-weight:700;border:1px solid #000;padding:4px 8px;display:inline-block;margin-bottom:6px">
+              ORIGINAL / DUPLICATE / TRIPLICATE / EXTRA COPY
+            </div>
+            <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:4px">
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>Invoice No</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">${docNum}</td></tr>
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>Invoice Date</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">${today}</td></tr>
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>Invoice Time</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">${timeStr}</td></tr>
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>PO No.</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">${po||'—'}</td></tr>
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>Model of transport</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">By Road</td></tr>
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>Vehicle No.</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">${vehicle||'—'}</td></tr>
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>Driver Name</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">${driver||'—'}</td></tr>
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>Place of supply</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">Maharashtra</td></tr>
+              <tr><td style="padding:3px 4px"><strong>E-Way Bill No.</strong></td><td style="padding:3px 4px">${ewaybill||'—'}</td></tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- BILL TO / SHIP TO -->
+        <tr style="border-top:1.5px solid #000">
+          <td style="padding:8px 12px;border-right:1.5px solid #000;vertical-align:top;font-size:11px">
+            <div style="font-weight:700;margin-bottom:4px">Name and Address of consignee</div>
+            <div>To,</div>
+            <div><strong>${customer}</strong></div>
+            <div>${custAddr||'—'}</div>
+            ${custGstin ? `<div style="margin-top:4px">GSTIN No : <strong>${custGstin}</strong></div>` : ''}
+            <div>State : Maharashtra &nbsp;&nbsp; State Code : 27</div>
+          </td>
+          <td style="padding:8px 12px;vertical-align:top;font-size:11px">
+            <div style="font-weight:700;margin-bottom:4px">Shipping To</div>
+            <div>Shipping To,</div>
+            <div><strong>${customer}</strong></div>
+            <div>${custAddr||'—'}</div>
+            ${custGstin ? `<div style="margin-top:4px">GSTIN No : <strong>${custGstin}</strong></div>` : ''}
+            <div>State : Maharashtra &nbsp;&nbsp; State Code : 27</div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ITEMS TABLE -->
+      <table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:none;font-size:11px;margin-top:0">
+        <thead>
+          <tr style="background:#e8e8e8">
+            <th style="padding:6px 8px;border:1px solid #000;text-align:left">Part Code</th>
+            <th style="padding:6px 8px;border:1px solid #000;text-align:left">Part Description</th>
+            <th style="padding:6px 8px;border:1px solid #000">HSN Code</th>
+            <th style="padding:6px 8px;border:1px solid #000">Quantity</th>
+            <th style="padding:6px 8px;border:1px solid #000">UOM</th>
+            <th style="padding:6px 8px;border:1px solid #000">Unit/Price Part</th>
+            <th style="padding:6px 8px;border:1px solid #000">Bins</th>
+            <th style="padding:6px 8px;border:1px solid #000">No. of Bins</th>
+            <th style="padding:6px 8px;border:1px solid #000">Total Part Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px;border:1px solid #ccc;vertical-align:top"><strong>${p?p.no:partName}</strong></td>
+            <td style="padding:8px;border:1px solid #ccc;vertical-align:top"><strong>${partName}${variant!=='General'?' ('+variant+')':''}</strong></td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center">${p?p.hsn:'85389000'}</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center"><strong>${qty}</strong></td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center">NOS</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:right">${rate.toFixed(2)}</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center">—</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center">${document.getElementById('inv-bins')?.value||0}</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:right"><strong>${subtotal.toFixed(2)}</strong></td>
+          </tr>
+          <tr style="height:40px"><td colspan="9" style="border:1px solid #ccc"></td></tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:#f5f5f5">
+            <td colspan="3" style="padding:6px 8px;border:1px solid #000;font-weight:700;text-align:right">TOTAL</td>
+            <td style="padding:6px 8px;border:1px solid #000;text-align:center;font-weight:700">${qty}</td>
+            <td colspan="4" style="border:1px solid #000"></td>
+            <td style="padding:6px 8px;border:1px solid #000;text-align:right;font-weight:700">${subtotal.toFixed(2)}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <!-- TOTALS -->
+      <table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:none;font-size:11px">
+        <tr>
+          <td style="width:50%;padding:8px 12px;border-right:1.5px solid #000;vertical-align:top;font-size:10px;color:#555">
+            <div style="margin-bottom:4px">IRN No. : <em>(Digitally generated)</em></div>
+            <div>Transporter : <strong>${transport||'—'}</strong></div>
+          </td>
+          <td style="padding:0;vertical-align:top">
+            <table style="width:100%;border-collapse:collapse;font-size:11px">
+              <tr><td style="padding:4px 10px;border-bottom:1px solid #ddd">Total Part Value</td><td style="padding:4px 10px;border-bottom:1px solid #ddd;text-align:right">${subtotal.toFixed(2)}</td></tr>
+              <tr><td style="padding:4px 10px;border-bottom:1px solid #ddd">Total Amortization Value</td><td style="padding:4px 10px;border-bottom:1px solid #ddd;text-align:right">0.00</td></tr>
+              <tr><td style="padding:4px 10px;border-bottom:1px solid #ddd">Total Taxable Value</td><td style="padding:4px 10px;border-bottom:1px solid #ddd;text-align:right">${subtotal.toFixed(2)}</td></tr>
+              <tr><td style="padding:4px 10px;border-bottom:1px solid #ddd">CGST @${gstRate/2}.0%</td><td style="padding:4px 10px;border-bottom:1px solid #ddd;text-align:right">${cgst.toFixed(2)}</td></tr>
+              <tr><td style="padding:4px 10px;border-bottom:1px solid #ddd">SGST @${gstRate/2}.0%</td><td style="padding:4px 10px;border-bottom:1px solid #ddd;text-align:right">${sgst.toFixed(2)}</td></tr>
+              <tr><td style="padding:4px 10px;border-bottom:1px solid #ddd">Total Amount</td><td style="padding:4px 10px;border-bottom:1px solid #ddd;text-align:right">${total.toFixed(2)}</td></tr>
+              <tr><td style="padding:4px 10px;border-bottom:1px solid #ddd">TCS Amount</td><td style="padding:4px 10px;border-bottom:1px solid #ddd;text-align:right">0.00</td></tr>
+              <tr><td style="padding:4px 10px;border-bottom:1px solid #ddd">Less Tool Amortization</td><td style="padding:4px 10px;border-bottom:1px solid #ddd;text-align:right">0.00</td></tr>
+              <tr style="background:#e8e8e8">
+                <td style="padding:6px 10px;font-weight:900;font-size:13px">Total Invoice Value</td>
+                <td style="padding:6px 10px;text-align:right;font-weight:900;font-size:13px">${grandTotal.toFixed(2)}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <!-- AMOUNT IN WORDS -->
+      <div style="border:1.5px solid #000;border-top:none;padding:8px 12px;font-size:11px">
+        <strong>Amount In Words :</strong> &nbsp; ${numToWords(Math.round(grandTotal))} Only
+      </div>
+
+      <!-- TERMS -->
+      <div style="border:1.5px solid #000;border-top:none;padding:8px 12px;font-size:10px;color:#444;display:flex;gap:20px">
+        <div style="flex:1">
+          <em>Certificate that particulars given above are true and correct and that the amount indicated represents the price actually charged and that there is no flow of additional consideration directly or indirectly.</em>
+        </div>
+        <div style="flex:0 0 220px;text-align:center;border-left:1px solid #ccc;padding-left:14px">
+          <div style="font-weight:700;margin-bottom:4px">For UNITECH PLASTO COMPONENTS PVT LTD</div>
+          <div style="margin-top:32px;border-top:1px solid #000;font-size:10px">Authorised Signatory</div>
+        </div>
+      </div>
+
+      <!-- FOOTER NOTE -->
+      <div style="border:1.5px solid #000;border-top:none;padding:6px 12px;font-size:10px">
+        I Hereby accept the terms and conditions including dispute resolution clause provided in the invoice.<br>
+        Goods mentioned in the invoice are received in good condition &amp; completely.
+      </div>
+    </div>`;
+
+  } else {
+    // DELIVERY CHALLAN
+    wrap.innerHTML = `
+    <div class="doc-wrap" id="printable-doc" style="font-family:'Times New Roman',serif;font-size:12px;padding:24px 28px">
+      <div style="text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:10px">
+        <div style="font-size:18px;font-weight:900;letter-spacing:1px">DELIVERY CHALLAN</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;border:1.5px solid #000">
+        <tr>
+          <td style="width:55%;padding:10px 12px;border-right:1.5px solid #000;vertical-align:top">
+            <div style="font-size:14px;font-weight:900">${CO.name}</div>
+            <div style="font-size:11px;margin-top:4px">${CO.addr1}</div>
+            <div style="font-size:11px">${CO.addr2}</div>
+            <div style="font-size:11px">${CO.addr3}</div>
+            <div style="font-size:11px;margin-top:6px">GSTIN : <strong>${CO.gstin}</strong></div>
+          </td>
+          <td style="padding:8px 12px;vertical-align:top;font-size:11px">
+            <table style="width:100%;border-collapse:collapse">
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>Challan No.</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">${docNum}</td></tr>
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>Date</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">${today}</td></tr>
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>Vehicle No.</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">${vehicle||'—'}</td></tr>
+              <tr><td style="padding:3px 4px;border-bottom:1px solid #ddd"><strong>Transporter</strong></td><td style="padding:3px 4px;border-bottom:1px solid #ddd">${transport||'—'}</td></tr>
+              <tr><td style="padding:3px 4px"><strong>PO No.</strong></td><td style="padding:3px 4px">${po||'—'}</td></tr>
+            </table>
+          </td>
+        </tr>
+        <tr style="border-top:1.5px solid #000">
+          <td colspan="2" style="padding:8px 12px;font-size:11px">
+            <strong>Dispatched To:</strong> ${customer} &nbsp;|&nbsp; ${custAddr||'—'} &nbsp;|&nbsp; GSTIN: ${custGstin||'—'}
+          </td>
+        </tr>
+      </table>
+      <table style="width:100%;border-collapse:collapse;border:1.5px solid #000;border-top:none;font-size:11px">
+        <thead>
+          <tr style="background:#e8e8e8">
+            <th style="padding:6px 8px;border:1px solid #000">Sr.</th>
+            <th style="padding:6px 8px;border:1px solid #000;text-align:left">Part Code</th>
+            <th style="padding:6px 8px;border:1px solid #000;text-align:left">Part Description</th>
+            <th style="padding:6px 8px;border:1px solid #000">HSN</th>
+            <th style="padding:6px 8px;border:1px solid #000">Qty</th>
+            <th style="padding:6px 8px;border:1px solid #000">UOM</th>
+            <th style="padding:6px 8px;border:1px solid #000">Variant</th>
+            <th style="padding:6px 8px;border:1px solid #000">Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center">1</td>
+            <td style="padding:8px;border:1px solid #ccc"><strong>${p?p.no:partName}</strong></td>
+            <td style="padding:8px;border:1px solid #ccc"><strong>${partName}</strong></td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center">${p?p.hsn:'—'}</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center"><strong>${qty}</strong></td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center">NOS</td>
+            <td style="padding:8px;border:1px solid #ccc;text-align:center">${variant}</td>
+            <td style="padding:8px;border:1px solid #ccc">—</td>
+          </tr>
+          <tr style="height:30px"><td colspan="8" style="border:1px solid #ccc"></td></tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:#f5f5f5">
+            <td colspan="4" style="padding:6px 8px;border:1px solid #000;text-align:right;font-weight:700">TOTAL</td>
+            <td style="padding:6px 8px;border:1px solid #000;text-align:center;font-weight:700">${qty}</td>
+            <td colspan="3" style="border:1px solid #000"></td>
+          </tr>
+        </tfoot>
+      </table>
+      <div style="border:1.5px solid #000;border-top:none;padding:8px 12px;font-size:10px">
+        Goods mentioned above are dispatched in good condition. This is not a Tax Invoice.
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:36px;font-size:11px">
+        <div style="text-align:center"><div style="border-top:1px solid #000;width:140px;margin:0 auto 4px"></div>Prepared By (Dispatch)</div>
+        <div style="text-align:center"><div style="border-top:1px solid #000;width:140px;margin:0 auto 4px"></div>Driver / Transporter</div>
+        <div style="text-align:center"><div style="border-top:1px solid #000;width:140px;margin:0 auto 4px"></div>Receiver's Signature &amp; Stamp</div>
+      </div>
+    </div>`;
+  }
+  wrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// Simple number to words (Indian format)
+function numToWords(n) {
+  if (n === 0) return 'Zero Rupees';
+  const a = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+    'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function words(n) {
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n/10)] + (n%10 ? ' '+a[n%10] : '');
+    if (n < 1000) return a[Math.floor(n/100)]+' Hundred'+(n%100 ? ' '+words(n%100) : '');
+    if (n < 100000) return words(Math.floor(n/1000))+' Thousand'+(n%1000 ? ' '+words(n%1000) : '');
+    if (n < 10000000) return words(Math.floor(n/100000))+' Lakh'+(n%100000 ? ' '+words(n%100000) : '');
+    return words(Math.floor(n/10000000))+' Crore'+(n%10000000 ? ' '+words(n%10000000) : '');
+  }
+  return words(n) + ' Rupees';
+}
+
+function clearInvForm() {
+  ['inv-customer','inv-po','inv-cust-gstin','inv-cust-addr','inv-qty','inv-rate',
+   'inv-transporter','inv-vehicle','inv-driver','inv-eway','inv-bins'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('inv-bins') && (document.getElementById('inv-bins').value = '0');
+  document.getElementById('doc-preview-wrap').innerHTML = '';
+  document.getElementById('printBtn').style.display = 'none';
+}
+
+// ═══════════════════════════════
+// PART MASTER
+// ═══════════════════════════════
+function addPart() {
+  const name = document.getElementById('pm-name').value.trim();
+  const no   = document.getElementById('pm-no').value.trim();
+  const qty  = parseInt(document.getElementById('pm-qty').value);
+  const tol  = parseInt(document.getElementById('pm-tol').value) || 0;
+  const hsn  = document.getElementById('pm-hsn').value.trim() || '3926';
+  const gst  = parseInt(document.getElementById('pm-gst').value);
+  const hasVariants = document.getElementById('pm-variants').value === 'yes';
+  const low  = parseInt(document.getElementById('pm-low').value) || 50;
+
+  if (!name || !no || !qty) { alert('Please fill Part Name, Part No. and Std Qty.'); return; }
+  if (parts.find(p=>p.no===no)) { alert('Part No. already exists.'); return; }
+
+  parts.push({ name, no, stdQty:qty, tol, hsn, gst, variants:hasVariants, lowAlert:low });
+
+  // Init FG bins for new part
+  if (hasVariants) { ['RH','LH'].forEach(v => { fgStock[`${name}|${v}`] = 0; }); }
+  else { fgStock[`${name}|General`] = 0; }
+
+  ['pm-name','pm-no','pm-qty','pm-hsn','pm-low'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('pm-tol').value = '0';
+  renderPartsTable();
+  populatePartSelects();
+  addActivity('parts', `New part added: ${name} (${no})`, `Std qty: ${qty}, Variants: ${hasVariants?'RH+LH':'None'}`, 'info');
+}
+
+function renderPartsTable() {
+  const tbody = document.getElementById('parts-table-body');
+  if (!parts.length) { tbody.innerHTML='<tr><td colspan="9"><div class="empty-state">No parts added yet</div></td></tr>'; return; }
+  tbody.innerHTML = parts.map((p,i) => `
+    <tr>
+      <td><strong>${p.name}</strong></td>
+      <td><span class="mono">${p.no}</span></td>
+      <td><strong>${p.stdQty}</strong> NOS</td>
+      <td>± ${p.tol}</td>
+      <td>${p.variants ? '<span class="tag rh">RH</span> <span class="tag lh">LH</span>' : '<span class="tag gen">General</span>'}</td>
+      <td>${p.hsn}</td>
+      <td>${p.gst}%</td>
+      <td>${p.lowAlert}</td>
+      <td><button class="del-btn" onclick="deletePart(${i})">🗑</button></td>
+    </tr>`).join('');
+}
+
+function deletePart(i) {
+  if (!confirm(`Remove "${parts[i].name}"? This will also remove its FG bins.`)) return;
+  const name = parts[i].name;
+  parts.splice(i,1);
+  Object.keys(fgStock).filter(k=>k.startsWith(name+'|')).forEach(k=>delete fgStock[k]);
+  renderPartsTable();
+  populatePartSelects();
+}
+
+// ═══════════════════════════════
+// ACTIVITY LOG
+// ═══════════════════════════════
+function addActivity(stage, main, sub, type) {
+  const time = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  actLog.unshift({ stage, main, sub, type, time });
+  if (actLog.length > 50) actLog.pop();
+  renderActivity();
+}
+
+function renderActivity() {
+  const el = document.getElementById('activityLog');
+  if (!actLog.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div>No activity yet</div>'; return; }
+  el.innerHTML = actLog.slice(0,20).map(e=>`
+    <div class="log-item ${e.type}">
+      <div class="log-stage">${e.stage.toUpperCase()}</div>
+      <div><div class="log-main">${e.main}</div><div class="log-sub">${e.sub}</div></div>
+      <div class="log-time">${e.time}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════
+// UTILS
+// ═══════════════════════════════
+function showAlert(id, type, title, msg) {
+  const el = document.getElementById(id);
+  el.className = `alert ${type==='ok'?'ok':type==='bad'?'bad':'warn'}`;
+  el.innerHTML = `<div class="alert-title">${title}</div><div style="font-size:13px;margin-top:4px">${msg}</div>`;
+  el.style.display = 'block';
+}
+
+function updateDashStats() {
+  document.getElementById('ds-prod').textContent  = stats.prod;
+  document.getElementById('ds-fg').textContent    = stats.fg;
+  document.getElementById('ds-disp').textContent  = stats.disp;
+  document.getElementById('ds-rej').textContent   = stats.rej;
+  document.getElementById('dash-prod-line').textContent = `${stats.prod} batches recorded today`;
+  document.getElementById('dash-fg-line').textContent   = `${stats.fg} active bins in stock`;
+  document.getElementById('dash-disp-line').textContent = `${stats.disp} shipments done today`;
+  const pdEl = document.getElementById('dash-pd-line');
+  if (pdEl) pdEl.textContent = `${pdiStats.total} PDIs · ${pdiStats.pending} pending approval`;
+}
+
+function updateNavBadges() {
+  document.getElementById('nb-prod').textContent = prodLog.length;
+  document.getElementById('nb-fg').textContent   = Object.keys(fgStock).filter(k=>fgStock[k]>0).length;
+  document.getElementById('nb-disp').textContent = dispLog.length;
+}
+
+function exportCSV(type) {
+  let rows, headers, filename;
+  if (type==='prod') {
+    headers = ['Time','Machine','Part','Variant','Good Qty','Rejected','Operator','Shift'];
+    rows = prodLog.map(e=>[e.time,e.machine,e.partName,e.variant,e.good,e.bad,e.operator,e.shift]);
+    filename = 'Production_Log';
+  } else {
+    headers = ['Time','Part','Variant','Bin','Expected','Actual','Diff','Action','Engineer'];
+    rows = dispLog.map(e=>[e.time,e.partName,e.variant,e.bin,e.expected,e.actual,e.diff,e.action,e.engineer]);
+    filename = 'Dispatch_Log';
+  }
+  if (type==='pd') {
+    headers = ['PDI No.','Date','Customer','PO No.','Parts','Total Qty','Grand Total','Status'];
+    rows = pdiLog.map(e=>[
+      e.pdiNo, e.date, e.customer, e.po,
+      e.items.map(i=>i.partName+'('+i.variant+')').join('; '),
+      e.totalQty, e.grandTotal.toFixed(2), e.status
+    ]);
+    filename = 'PreDispatch_Invoice_Register';
+  }
+  if (!rows.length) { alert('No data to export yet.'); return; }
+  const csv = [headers,...rows].map(r=>r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `${filename}_${new Date().toLocaleDateString('en-IN').replace(/\//g,'-')}.csv`;
+  a.click();
+}
+
+// ═══════════════════════════════
+// PRE-DISPATCH INVOICE
+// ═══════════════════════════════
+let pdItems = [];   // current form line items
+let pdiLog  = [];   // saved PDIs
+let pdiCounter = 3001;
+let pdiStats = { total:0, pending:0, approved:0, converted:0 };
+
+function addPDItem() {
+  const idx = pdItems.length;
+  pdItems.push({ partName:'', variant:'General', qty:0, rate:0, gst:18 });
+  renderPDItems();
+}
+
+function renderPDItems() {
+  const container = document.getElementById('pd-items-container');
+  if (!pdItems.length) { container.innerHTML = ''; return; }
+
+  const partOptions = parts.map(p=>`<option value="${p.name}">${p.name} (${p.no})</option>`).join('');
+
+  container.innerHTML = pdItems.map((item, i) => {
+    const p = parts.find(x=>x.name===item.partName);
+    const variantOpts = p && p.variants
+      ? '<option value="RH">RH</option><option value="LH">LH</option>'
+      : '<option value="General">General</option>';
+    const amount = (item.qty * item.rate).toFixed(2);
+    const gstAmt = (item.qty * item.rate * item.gst / 100).toFixed(2);
+    const total  = ((item.qty * item.rate) * (1 + item.gst/100)).toFixed(2);
+    return `
+    <div style="background:var(--slate);border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:12px;font-weight:700;color:var(--muted)">LINE ITEM ${i+1}</span>
+        <button onclick="removePDItem(${i})" style="background:none;border:none;color:var(--red);font-size:15px;cursor:pointer">✕ Remove</button>
+      </div>
+      <div class="form-grid cols4">
+        <div class="f-group">
+          <label>Part Name</label>
+          <select onchange="updatePDItem(${i},'partName',this.value)">
+            <option value="">Select part</option>${partOptions}
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Variant</label>
+          <select id="pd-variant-${i}" onchange="updatePDItem(${i},'variant',this.value)">
+            ${variantOpts}
+          </select>
+        </div>
+        <div class="f-group">
+          <label>Qty Required</label>
+          <input type="number" value="${item.qty||''}" placeholder="e.g. 500" min="1"
+            onchange="updatePDItem(${i},'qty',this.value)" />
+        </div>
+        <div class="f-group">
+          <label>Rate per Unit (₹)</label>
+          <input type="number" value="${item.rate||''}" placeholder="e.g. 45.00" step="0.01" min="0"
+            onchange="updatePDItem(${i},'rate',this.value)" />
+        </div>
+      </div>
+      <div style="display:flex;gap:18px;margin-top:10px;font-size:12px;color:var(--muted)">
+        <span>GST <select style="font-size:12px;border:1px solid var(--border);border-radius:5px;padding:2px 6px" onchange="updatePDItem(${i},'gst',this.value)">
+          <option value="5" ${item.gst==5?'selected':''}>5%</option>
+          <option value="12" ${item.gst==12?'selected':''}>12%</option>
+          <option value="18" ${item.gst==18?'selected':''}>18%</option>
+          <option value="28" ${item.gst==28?'selected':''}>28%</option>
+        </select></span>
+        <span>Taxable: <strong style="color:var(--steel)">₹${amount}</strong></span>
+        <span>GST: <strong style="color:var(--steel)">₹${gstAmt}</strong></span>
+        <span style="font-size:13px">Line Total: <strong style="color:var(--green);font-size:14px">₹${total}</strong></span>
+        ${p ? `<span style="color:var(--sky)">FG Stock: <strong>${fgStock[item.partName+'|'+item.variant]||0} pcs</strong></span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Re-set selected values (select elements don't retain value from innerHTML)
+  pdItems.forEach((item, i) => {
+    const pSel = container.querySelectorAll('select')[i*3];
+    const vSel = document.getElementById(`pd-variant-${i}`);
+    if (pSel) pSel.value = item.partName;
+    if (vSel) vSel.value = item.variant;
+  });
+}
+
+function updatePDItem(i, field, val) {
+  pdItems[i][field] = field === 'qty' || field === 'rate' || field === 'gst' ? parseFloat(val)||0 : val;
+  if (field === 'partName') {
+    const p = parts.find(x=>x.name===val);
+    if (p) {
+      pdItems[i].gst = p.gst;
+      pdItems[i].variant = p.variants ? 'RH' : 'General';
+    }
+  }
+  renderPDItems();
+}
+
+function removePDItem(i) {
+  pdItems.splice(i, 1);
+  renderPDItems();
+}
+
+function generatePDI() {
+  const customer   = document.getElementById('pd-customer').value.trim();
+  const po         = document.getElementById('pd-po').value.trim();
+  const dateVal    = document.getElementById('pd-date').value;
+  const gstin      = document.getElementById('pd-gstin').value.trim();
+  const address    = document.getElementById('pd-address').value.trim();
+  const payment    = document.getElementById('pd-payment').value;
+  const remarks    = document.getElementById('pd-remarks').value.trim();
+  const preparedBy = document.getElementById('pd-preparedby').value.trim();
+
+  if (!customer) { showAlert('pd-alert','warn','⚠ Missing','Please enter customer name.'); return; }
+  if (!pdItems.length || pdItems.every(i=>!i.partName||!i.qty)) {
+    showAlert('pd-alert','warn','⚠ No Items','Add at least one part line with quantity.'); return;
+  }
+
+  const validItems = pdItems.filter(i=>i.partName && i.qty > 0);
+  if (!validItems.length) { showAlert('pd-alert','warn','⚠ Incomplete','Fill in part name and quantity for each line.'); return; }
+
+  const today    = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const dispDate = dateVal ? new Date(dateVal).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'TBD';
+  const pdiNo    = `UPC/PDI/25-26/${pdiCounter++}`;
+
+  // Calculate totals
+  let grandSubtotal = 0, grandGST = 0;
+  validItems.forEach(item => {
+    grandSubtotal += item.qty * item.rate;
+    grandGST      += item.qty * item.rate * item.gst / 100;
+  });
+  const grandTotal = grandSubtotal + grandGST;
+  const totalQty   = validItems.reduce((a,i)=>a+i.qty,0);
+
+  // Stock availability check
+  const stockWarnings = validItems.filter(item => {
+    const avail = fgStock[`${item.partName}|${item.variant}`] || 0;
+    return avail < item.qty;
+  });
+
+  // Save to log
+  const pdiEntry = {
+    pdiNo, date: today, customer, po: po||'—', items: validItems,
+    totalQty, grandSubtotal, grandGST, grandTotal,
+    dispDate, gstin, address, payment, remarks, preparedBy: preparedBy||'—',
+    status: 'Pending'
+  };
+  pdiLog.unshift(pdiEntry);
+  pdiStats.total++;
+  pdiStats.pending++;
+  updatePDIStats();
+  renderPDILog();
+  updateNavBadges();
+  addActivity('pre-disp', `PDI ${pdiNo} — ${customer}`, `${validItems.length} part(s), Total: ₹${grandTotal.toFixed(2)}`, 'info');
+
+  // Show stock warning if any
+  if (stockWarnings.length) {
+    showAlert('pd-alert','warn',`⚠ Stock Shortfall for ${stockWarnings.length} item(s)`,
+      stockWarnings.map(i=>`${i.partName} (${i.variant}): Required ${i.qty}, Available ${fgStock[i.partName+'|'+i.variant]||0}`).join(' | '));
+  } else {
+    showAlert('pd-alert','ok','✔ Stock Available','All items have sufficient FG stock for this dispatch.');
+  }
+
+  // Render preview
+  const itemRows = validItems.map((item,idx) => {
+    const p = parts.find(x=>x.name===item.partName);
+    const subtotal = item.qty * item.rate;
+    const gstAmt   = subtotal * item.gst / 100;
+    return `<tr>
+      <td>${idx+1}</td>
+      <td><strong>${p?p.no:'—'}</strong></td>
+      <td>${item.partName} ${item.variant!=='General'?'('+item.variant+')':''}</td>
+      <td>${p?p.hsn:'3926'}</td>
+      <td>${item.qty}</td>
+      <td>NOS</td>
+      <td>₹${parseFloat(item.rate).toFixed(2)}</td>
+      <td>₹${subtotal.toFixed(2)}</td>
+      <td>${item.gst}%</td>
+      <td>₹${gstAmt.toFixed(2)}</td>
+      <td><strong>₹${(subtotal+gstAmt).toFixed(2)}</strong></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('pd-preview-wrap').innerHTML = `
+  <div class="doc-wrap" style="margin-top:18px" id="printable-doc">
+    <!-- Watermark -->
+    <div style="text-align:center;margin-bottom:4px">
+      <span style="background:#fef3c7;color:#92400e;border:1.5px solid #fbbf24;border-radius:20px;
+        padding:4px 18px;font-size:11px;font-weight:800;letter-spacing:1px">
+        PRE-DISPATCH INVOICE — NOT A TAX INVOICE
+      </span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:12px">
+      <div>
+        <div class="doc-co">UNITECH PLASTO COMPONENTS PVT LTD</div>
+        <div class="doc-co-sub">Ground Floor, Building No. 258/1, Pawar Wasti, Talegaon Chakan Road, Kharabwadi</div>
+        <div class="doc-co-sub">Khed, Chakan – 410501, Maharashtra, Pune &nbsp;|&nbsp; GSTIN: 27AAACU6211E1ZP &nbsp;|&nbsp; PAN: AAACU6211E</div>
+      </div>
+      <div style="background:#0e7490;color:#fff;padding:8px 20px;border-radius:7px;font-weight:800;font-size:13px;letter-spacing:1px;text-align:right">
+        PRE-DISPATCH<br>INVOICE
+      </div>
+    </div>
+    <hr class="doc-divider" style="border-top-color:#0e7490">
+
+    <div class="doc-meta" style="grid-template-columns:repeat(4,1fr)">
+      <div class="doc-meta-box">
+        <div class="doc-meta-lbl">PDI Number</div>
+        <div class="doc-meta-val">${pdiNo}</div>
+      </div>
+      <div class="doc-meta-box">
+        <div class="doc-meta-lbl">Created On</div>
+        <div class="doc-meta-val">${today}</div>
+      </div>
+      <div class="doc-meta-box">
+        <div class="doc-meta-lbl">Expected Dispatch</div>
+        <div class="doc-meta-val">${dispDate}</div>
+      </div>
+      <div class="doc-meta-box">
+        <div class="doc-meta-lbl">Customer PO No.</div>
+        <div class="doc-meta-val">${po||'—'}</div>
+      </div>
+    </div>
+
+    <div class="doc-meta" style="grid-template-columns:1fr 1fr;margin-top:0">
+      <div class="doc-meta-box">
+        <div class="doc-meta-lbl">Bill To / Dispatch To</div>
+        <div class="doc-meta-val">${customer}</div>
+        <div class="doc-meta-sub">${address||'—'}</div>
+        ${gstin ? `<div class="doc-meta-sub">GSTIN: ${gstin}</div>` : ''}
+      </div>
+      <div class="doc-meta-box">
+        <div class="doc-meta-lbl">Payment Terms</div>
+        <div class="doc-meta-val">${payment}</div>
+        <div class="doc-meta-sub">Prepared by: ${preparedBy||'—'}</div>
+        ${remarks ? `<div class="doc-meta-sub" style="margin-top:4px;color:var(--amber)">📌 ${remarks}</div>` : ''}
+      </div>
+    </div>
+
+    <table class="inv" style="margin-top:16px">
+      <thead>
+        <tr>
+          <th>Sr.</th><th>Part No.</th><th>Description</th><th>HSN</th>
+          <th>Qty</th><th>Unit</th><th>Rate ₹</th><th>Taxable ₹</th>
+          <th>GST%</th><th>GST Amt ₹</th><th>Total ₹</th>
+        </tr>
+      </thead>
+      <tbody>${itemRows}</tbody>
+    </table>
+
+    <div class="inv-totals">
+      <table>
+        <tr><td>Subtotal (Taxable)</td><td>₹${grandSubtotal.toFixed(2)}</td></tr>
+        <tr><td>Total GST</td><td>₹${grandGST.toFixed(2)}</td></tr>
+        <tr class="inv-total-row"><td>GRAND TOTAL</td><td>₹${grandTotal.toFixed(2)}</td></tr>
+      </table>
+    </div>
+
+    <div class="doc-words"><strong>Amount in Words:</strong> ${numToWords(Math.round(grandTotal))} Only</div>
+
+    <!-- Stock status table -->
+    <div style="margin-top:16px;padding:12px 16px;background:${stockWarnings.length?'#fef9c3':'#f0fdf4'};border-radius:8px;border:1px solid ${stockWarnings.length?'#fbbf24':'#86efac'}">
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.6px;color:${stockWarnings.length?'#92400e':'var(--green)'};margin-bottom:8px">
+        ${stockWarnings.length ? '⚠ Stock Availability Check — Shortfall Detected' : '✔ Stock Availability Check — All OK'}
+      </div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <thead><tr style="background:rgba(0,0,0,0.05)">
+          <th style="padding:5px 8px;text-align:left">Part</th>
+          <th style="padding:5px 8px;text-align:left">Variant</th>
+          <th style="padding:5px 8px;text-align:left">Required</th>
+          <th style="padding:5px 8px;text-align:left">FG Stock</th>
+          <th style="padding:5px 8px;text-align:left">Status</th>
+        </tr></thead>
+        <tbody>
+          ${validItems.map(item=>{
+            const avail = fgStock[`${item.partName}|${item.variant}`]||0;
+            const ok = avail >= item.qty;
+            return `<tr>
+              <td style="padding:5px 8px">${item.partName}</td>
+              <td style="padding:5px 8px"><span class="tag ${item.variant==='RH'?'rh':item.variant==='LH'?'lh':'gen'}">${item.variant}</span></td>
+              <td style="padding:5px 8px">${item.qty}</td>
+              <td style="padding:5px 8px"><strong>${avail}</strong></td>
+              <td style="padding:5px 8px"><span class="tag ${ok?'ok':'bad'}">${ok?'✔ Sufficient':'✖ Short by '+(item.qty-avail)}</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:14px;padding:10px 14px;background:#fef9c3;border-radius:7px;font-size:11px;color:#92400e;border:1px solid #fbbf24">
+      ⚠ <strong>This is a Pre-Dispatch Invoice only.</strong> This document is for internal planning and customer communication purposes. 
+      It does not constitute a Tax Invoice. A formal GST Tax Invoice will be issued at the time of actual dispatch.
+    </div>
+
+    <div class="doc-sign" style="margin-top:28px">
+      <div class="doc-sign-box"><div class="doc-sign-line"></div><div class="doc-sign-lbl">Prepared By (Dispatch)</div></div>
+      <div class="doc-sign-box"><div class="doc-sign-line"></div><div class="doc-sign-lbl">Approved By (Manager)</div></div>
+      <div class="doc-sign-box"><div class="doc-sign-line"></div><div class="doc-sign-lbl">Customer Acknowledgement</div></div>
+    </div>
+  </div>`;
+
+  document.getElementById('pd-print-btn').style.display = 'inline-flex';
+  document.getElementById('pd-preview-wrap').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function clearPDForm() {
+  pdItems = [];
+  renderPDItems();
+  ['pd-customer','pd-po','pd-date','pd-gstin','pd-address','pd-remarks','pd-preparedby'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('pd-preview-wrap').innerHTML = '';
+  document.getElementById('pd-print-btn').style.display = 'none';
+  document.getElementById('pd-alert').style.display = 'none';
+}
+
+function updatePDIStats() {
+  document.getElementById('pd-total').textContent     = pdiStats.total;
+  document.getElementById('pd-pending').textContent   = pdiStats.pending;
+  document.getElementById('pd-approved').textContent  = pdiStats.approved;
+  document.getElementById('pd-converted').textContent = pdiStats.converted;
+}
+
+function approvePDI(idx) {
+  const pdi = pdiLog[idx];
+  if (pdi.status === 'Pending') {
+    pdi.status = 'Approved';
+    pdiStats.pending  = Math.max(0, pdiStats.pending-1);
+    pdiStats.approved++;
+    updatePDIStats();
+    renderPDILog();
+    addActivity('pre-disp', `PDI Approved: ${pdi.pdiNo} — ${pdi.customer}`, `Ready for dispatch`, 'ok');
+  }
+}
+
+function convertToInvoice(idx) {
+  const pdi = pdiLog[idx];
+  if (pdi.status !== 'Converted') {
+    pdi.status = 'Converted';
+    if (pdi.status === 'Approved') pdiStats.approved = Math.max(0, pdiStats.approved-1);
+    else pdiStats.pending = Math.max(0, pdiStats.pending-1);
+    pdiStats.converted++;
+    stats.invoiced++;
+    updatePDIStats();
+    renderPDILog();
+    addActivity('dispatch', `PDI ${pdi.pdiNo} converted to Tax Invoice`, `Customer: ${pdi.customer}`, 'ok');
+    alert(`PDI ${pdi.pdiNo} marked as Converted to Tax Invoice. Go to Dispatch tab to generate the final invoice.`);
+  }
+}
+
+function renderPDILog() {
+  const tbody = document.getElementById('pd-log-body');
+  if (!pdiLog.length) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div>No pre-dispatch invoices yet</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = pdiLog.map((e, i) => {
+    const statusColor = e.status==='Approved'?'ok':e.status==='Converted'?'fg':'hold';
+    const partsSummary = e.items.map(x=>`${x.partName}(${x.variant})`).join(', ');
+    return `<tr>
+      <td><span class="mono">${e.pdiNo}</span></td>
+      <td>${e.date}</td>
+      <td><strong>${e.customer}</strong></td>
+      <td>${e.po}</td>
+      <td style="font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${partsSummary}">${partsSummary}</td>
+      <td><strong>${e.totalQty}</strong></td>
+      <td><strong style="color:var(--green)">₹${e.grandTotal.toFixed(2)}</strong></td>
+      <td><span class="tag ${statusColor}">${e.status}</span></td>
+      <td style="white-space:nowrap">
+        ${e.status==='Pending'?`<button class="btn btn-green" style="padding:4px 10px;font-size:11px;margin-right:4px" onclick="approvePDI(${i})">✔ Approve</button>`:''}
+        ${e.status!=='Converted'?`<button class="btn btn-blue" style="padding:4px 10px;font-size:11px" onclick="convertToInvoice(${i})">→ Invoice</button>`:'<span style="color:var(--muted);font-size:12px">Done</span>'}
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('nb-pd').textContent = pdiLog.length;
+}
+
+
+initFGStock();
+populatePartSelects();
+renderPartsTable();
+updateDashStats();
+updateNavBadges();
+</script>
+
+<!-- ══════════════════════════════════════════════
+     AI ASSISTANT STYLES
+══════════════════════════════════════════════ -->
+<style>
+/* AI Page */
+#page-ai { display:none; }
+#page-ai.active { display:block; }
+
+.ai-layout { display:grid; grid-template-columns:1fr 360px; gap:18px; align-items:start; }
+
+/* Chat panel */
+.ai-chat-panel { background:#fff; border-radius:14px; border:1px solid var(--border);
+  box-shadow:0 2px 12px rgba(0,0,0,0.07); overflow:hidden; }
+.ai-chat-head {
+  background:linear-gradient(135deg,#4c1d95,#7c3aed);
+  padding:14px 18px; display:flex; align-items:center; gap:12px;
+}
+.ai-avatar-big { width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,0.18); display:flex;align-items:center;
+  justify-content:center;font-size:20px;flex-shrink:0; }
+.ai-chat-head-info h3 { color:#fff;font-size:15px;font-weight:800; }
+.ai-chat-head-info p  { color:#c4b5fd;font-size:12px; }
+.ai-status-dot { width:8px;height:8px;border-radius:50%;background:#4ade80;
+  margin-left:auto;box-shadow:0 0 6px #4ade80; }
+
+.ai-messages { height:420px;overflow-y:auto;padding:18px 16px;
+  display:flex;flex-direction:column;gap:14px;background:#faf8ff; }
+
+.ai-msg { display:flex;gap:10px;align-items:flex-start; }
+.ai-msg.user { flex-direction:row-reverse; }
+.ai-msg-av { width:32px;height:32px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-weight:700; }
+.ai-msg.ai-side .ai-msg-av { background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff; }
+.ai-msg.user .ai-msg-av { background:var(--amber);color:var(--ink); }
+.ai-bubble { max-width:82%;padding:11px 15px;border-radius:12px;
+  font-size:13.5px;line-height:1.6; }
+.ai-msg.ai-side .ai-bubble { background:#fff;border:1px solid #e2d9f3;
+  border-radius:4px 12px 12px 12px;color:var(--ink); }
+.ai-msg.user .ai-bubble { background:#7c3aed;color:#fff;
+  border-radius:12px 4px 12px 12px; }
+.ai-bubble strong { font-weight:700; }
+.ai-bubble ul { padding-left:16px;margin-top:4px; }
+.ai-bubble li { margin-bottom:3px; }
+.ai-bubble .ai-doc-preview {
+  background:#f3f0ff;border:1px solid #c4b5fd;border-radius:8px;
+  padding:10px 12px;margin-top:10px;font-size:12px;
+}
+.ai-bubble .ai-doc-preview h4 { color:#7c3aed;font-size:12px;margin-bottom:6px; }
+
+.ai-typing { display:flex;gap:5px;align-items:center;padding:4px 0; }
+.ai-typing span { width:7px;height:7px;border-radius:50%;background:#7c3aed;opacity:0.5;
+  animation:aiPulse 1.2s infinite; }
+.ai-typing span:nth-child(2){animation-delay:.2s}
+.ai-typing span:nth-child(3){animation-delay:.4s}
+@keyframes aiPulse{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+
+.ai-input-area { padding:14px 16px;border-top:1px solid #e2d9f3;background:#fff; }
+.ai-input-row { display:flex;gap:10px; }
+#aiInput { flex:1;padding:11px 14px;border:1.5px solid #e2d9f3;border-radius:10px;
+  font-size:14px;outline:none;transition:border .2s;font-family:inherit; }
+#aiInput:focus { border-color:#7c3aed; }
+#aiSendBtn { background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;
+  border:none;border-radius:10px;padding:11px 20px;font-weight:700;
+  font-size:14px;cursor:pointer;transition:opacity .2s; }
+#aiSendBtn:disabled { opacity:.5;cursor:not-allowed; }
+#aiSendBtn:hover:not(:disabled) { opacity:.88; }
+
+/* Quick prompts */
+.ai-quick-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px;
+  border-top:1px solid #f0eaff;background:#fdfbff; }
+.ai-quick { background:#f3f0ff;border:1.5px solid #e2d9f3;border-radius:8px;
+  padding:8px 12px;font-size:12px;color:#5b21b6;font-weight:600;
+  cursor:pointer;text-align:left;transition:all .18s;line-height:1.4; }
+.ai-quick:hover { background:#7c3aed;color:#fff;border-color:#7c3aed; }
+
+/* Right panel — records */
+.ai-records-panel { display:flex;flex-direction:column;gap:14px; }
+.ai-rec-card { background:#fff;border-radius:12px;border:1px solid var(--border);
+  box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden; }
+.ai-rec-head { padding:10px 14px;display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,#4c1d95,#7c3aed); }
+.ai-rec-head span { color:#fff;font-weight:700;font-size:13px; }
+.ai-rec-head .export-btn { margin-left:auto; }
+.ai-rec-body { padding:12px;max-height:320px;overflow-y:auto; }
+.ai-rec-item { padding:10px 12px;border-radius:8px;margin-bottom:8px;
+  border:1px solid var(--border);background:#fdfbff;cursor:pointer;
+  transition:border-color .18s; }
+.ai-rec-item:hover { border-color:#7c3aed; }
+.ai-rec-item-title { font-size:13px;font-weight:700;color:var(--steel);margin-bottom:3px; }
+.ai-rec-item-meta  { font-size:11px;color:var(--muted);display:flex;gap:10px; }
+.ai-rec-item-tag   { font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px; }
+.tag-issue  { background:#fef3c7;color:#92400e; }
+.tag-report { background:#dbeafe;color:#1e40af; }
+.tag-task   { background:#dcfce7;color:#15803d; }
+.tag-query  { background:#f3e8ff;color:#6d28d9; }
+
+/* Stats mini */
+.ai-stat-row { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+.ai-stat { background:#fff;border-radius:10px;border:1px solid var(--border);
+  padding:12px 14px;text-align:center; }
+.ai-stat-val { font-size:26px;font-weight:900;color:#7c3aed;line-height:1; }
+.ai-stat-lbl { font-size:10px;color:var(--muted);font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;margin-top:3px; }
+
+@media(max-width:768px){
+  .ai-layout { grid-template-columns:1fr; }
+  .ai-quick-grid { grid-template-columns:1fr; }
+}
+</style>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: AI ASSISTANT
+══════════════════════════════════════════════ -->
+<div class="page" id="page-ai">
+  <div class="section-title">
+    <span class="stage-pill" style="background:#7c3aed">AI</span>
+    <div>
+      <h2>AI Assistant</h2>
+      <p>Ask anything about your plant — dispatch, production, FG stock, invoices, SOPs, and more. All conversations are saved as records.</p>
+    </div>
+  </div>
+
+  <div class="ai-layout">
+
+    <!-- LEFT: CHAT -->
+    <div>
+      <div class="ai-chat-panel">
+        <div class="ai-chat-head">
+          <div class="ai-avatar-big">🤖</div>
+          <div class="ai-chat-head-info">
+            <h3>Unitech Plasto AI Assistant</h3>
+            <p>Powered by Claude · Dispatch & Plant Operations Expert</p>
+          </div>
+          <div class="ai-status-dot"></div>
+        </div>
+
+        <div class="ai-messages" id="aiMessages">
+          <div class="ai-msg ai-side">
+            <div class="ai-msg-av">AI</div>
+            <div class="ai-bubble">
+              Namaskar! 🙏 I am your <strong>Unitech Plasto AI Assistant</strong>.<br><br>
+              I know your plant inside out — production, FG stock, dispatch, invoices, bin verification, and SOPs. Ask me anything:<br><br>
+              <ul>
+                <li>Check live stock or dispatch status</li>
+                <li>Draft emails to customers or transporters</li>
+                <li>Explain any SOP or compliance topic</li>
+                <li>Help troubleshoot a rejection or shortage</li>
+                <li>Generate a report summary</li>
+              </ul>
+              <br>Every conversation is saved as a record for future reference.
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-quick-grid">
+          <button class="ai-quick" onclick="aiQuick('What is the current FG stock status for all parts?')">📦 Check FG Stock Status</button>
+          <button class="ai-quick" onclick="aiQuick('Summarise today\'s production and dispatch activity')">📊 Today\'s Summary Report</button>
+          <button class="ai-quick" onclick="aiQuick('Draft a customer email for a dispatch delay')">✉ Draft Delay Email</button>
+          <button class="ai-quick" onclick="aiQuick('What are the common reasons for bin rejection at dispatch?')">🔍 Bin Rejection Reasons</button>
+          <button class="ai-quick" onclick="aiQuick('How should I handle a customer complaint about wrong quantity?')">⚠ Customer Complaint SOP</button>
+          <button class="ai-quick" onclick="aiQuick('Explain what IATF 16949 requires from the dispatch department')">📋 IATF Dispatch Requirements</button>
+          <button class="ai-quick" onclick="aiQuick('What documents are needed for dispatch to Uno Mindarika?')">📄 Uno Mindarika Docs</button>
+          <button class="ai-quick" onclick="aiQuick('How to calculate CGST and SGST for an invoice of ₹9702 at 18% GST?')">🧮 GST Calculation Help</button>
+        </div>
+
+        <div class="ai-input-area">
+          <div class="ai-input-row">
+            <input type="text" id="aiInput"
+              placeholder="Ask anything about dispatch, production, invoices, SOPs..."
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMessage()}" />
+            <button id="aiSendBtn" onclick="sendAIMessage()">Send ▶</button>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:7px;text-align:center">
+            💡 Tip: Mention part names, customer names, or invoice numbers for more precise answers
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: RECORDS + STATS -->
+    <div class="ai-records-panel">
+
+      <!-- STATS -->
+      <div class="card">
+        <div class="card-head" style="background:#7c3aed"><span>📈 AI Usage This Session</span></div>
+        <div class="card-body">
+          <div class="ai-stat-row">
+            <div class="ai-stat"><div class="ai-stat-val" id="ai-stat-total">0</div><div class="ai-stat-lbl">Total Queries</div></div>
+            <div class="ai-stat"><div class="ai-stat-val" id="ai-stat-records">0</div><div class="ai-stat-lbl">Records Saved</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAVED RECORDS -->
+      <div class="ai-rec-card">
+        <div class="ai-rec-head">
+          <span>🗂 Saved AI Records</span>
+          <button class="export-btn" onclick="exportAIRecords()">⬇ Export</button>
+        </div>
+        <div class="ai-rec-body" id="aiRecordsBody">
+          <div class="empty-state"><div class="empty-icon" style="font-size:32px">🗂</div>No records yet. Start chatting and records will appear here.</div>
+        </div>
+      </div>
+
+      <!-- SAVE NOTE -->
+      <div class="card">
+        <div class="card-head" style="background:#7c3aed"><span>📝 Save a Manual Note</span></div>
+        <div class="card-body">
+          <div class="f-group" style="margin-bottom:10px">
+            <label>Category</label>
+            <select id="aiNoteCategory">
+              <option value="issue">🔴 Issue / Problem</option>
+              <option value="task">🟢 Task / Action Item</option>
+              <option value="report">🔵 Report / Observation</option>
+              <option value="query">🟣 Query / Pending Answer</option>
+            </select>
+          </div>
+          <div class="f-group" style="margin-bottom:10px">
+            <label>Title</label>
+            <input type="text" id="aiNoteTitle" placeholder="e.g. Scalp Ridge RH short by 5 pcs" />
+          </div>
+          <div class="f-group" style="margin-bottom:12px">
+            <label>Details</label>
+            <textarea id="aiNoteBody" rows="3"
+              style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;outline:none"
+              placeholder="Write any observation, issue, or action item here..."></textarea>
+          </div>
+          <button class="btn btn-blue" style="background:#7c3aed;width:100%" onclick="saveManualNote()">💾 Save Record</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- AI JAVASCRIPT -->
+<script>
+// ═══════════════════════════════
+// AI ASSISTANT
+// ═══════════════════════════════
+let aiRecords = [];
+let aiQueryCount = 0;
+
+function getPlantContext() {
+  // Build a live snapshot of plant data to give to AI
+  const prodSummary = prodLog.length
+    ? prodLog.slice(0,5).map(e=>`${e.partName}(${e.variant}): ${e.good} good, ${e.bad} rejected from ${e.machine}`).join('; ')
+    : 'No production recorded today';
+
+  const fgSummary = Object.entries(fgStock)
+    .map(([k,v]) => {
+      const [pName, variant] = k.split('|');
+      const p = parts.find(x=>x.name===pName);
+      return `${pName}(${variant}): ${v} pcs${p&&v<p.lowAlert?' [LOW]':''}`;
+    }).join(', ') || 'No FG stock data';
+
+  const dispSummary = dispLog.length
+    ? `${stats.dispOk} accepted, ${stats.dispRej} rejected, ${stats.dispHold} on hold today`
+    : 'No dispatch activity today';
+
+  const partsList = parts.map(p=>`${p.name}(${p.no}, std qty/bin:${p.stdQty}${p.variants?', RH+LH':''}, HSN:${p.hsn}, GST:${p.gst}%)`).join('; ');
+
+  return `You are an expert AI assistant for Unitech Plasto Components Pvt Ltd, a plastic injection moulding company in Kharabwadi, Chakan, Pune - 410501. GSTIN: 27AAACU6211E1ZP. The company supplies auto components to customers like Uno Mindarika Pvt Ltd, Bajaj Auto, TVS Motors, Tata Motors, Mahindra.
+
+LIVE PLANT DATA (as of right now):
+- Production today: ${prodSummary}
+- FG Stock: ${fgSummary}
+- Dispatch today: ${dispSummary}
+- Invoices generated: ${stats.invoiced}
+- Total rejections: ${stats.rej}
+
+PART MASTER: ${partsList}
+
+PLANT WORKFLOW: Production Hall (20 moulding machines) → FG Stock (bins, RH/LH variants) → Pre-Dispatch Invoice → Dispatch (bin verification + Tax Invoice/DC)
+
+You are helpful, practical, and speak in simple English (not too formal). The user is a Junior Dispatch Engineer named Krishna at this plant. Give specific, actionable answers. For SOPs, give step-by-step guidance. For calculations, show the working. For emails/letters, draft them fully. Keep responses clear and well-structured. When referencing plant data above, use it naturally in your answer.`;
+}
+
+async function sendAIMessage() {
+  const input = document.getElementById('aiInput');
+  const btn   = document.getElementById('aiSendBtn');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  btn.disabled = true;
+  aiQueryCount++;
+  document.getElementById('ai-stat-total').textContent = aiQueryCount;
+
+  addAIMsg('user', text);
+  const loadingEl = addAILoading();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: getPlantContext(),
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Sorry, I could not get a response. Please try again.';
+
+    loadingEl.remove();
+    addAIMsg('ai', reply);
+
+    // Auto-save as record
+    saveAIRecord(text, reply, autoDetectCategory(text));
+
+  } catch (err) {
+    loadingEl.remove();
+    addAIMsg('ai', '⚠ Connection error. Please check your internet and try again.');
+    console.error(err);
+  }
+
+  btn.disabled = false;
+  input.focus();
+}
+
+function aiQuick(text) {
+  document.getElementById('aiInput').value = text;
+  sendAIMessage();
+}
+
+function addAIMsg(role, text) {
+  const box = document.getElementById('aiMessages');
+  const div = document.createElement('div');
+  div.className = `ai-msg ${role==='ai' ? 'ai-side' : 'user'}`;
+
+  // Convert markdown-like to HTML
+  const html = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^### (.*$)/gm, '<strong style="font-size:14px;display:block;margin-top:8px;margin-bottom:4px">$1</strong>')
+    .replace(/^## (.*$)/gm,  '<strong style="font-size:15px;display:block;margin-top:10px;margin-bottom:4px">$1</strong>')
+    .replace(/^- (.*$)/gm,   '<li style="margin-bottom:2px">$1</li>')
+    .replace(/(<li.*<\/li>\n?)+/g, s => `<ul style="padding-left:16px;margin:6px 0">${s}</ul>`)
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+
+  div.innerHTML = `
+    <div class="ai-msg-av">${role==='ai' ? '🤖' : 'KR'}</div>
+    <div class="ai-bubble">${html}</div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function addAILoading() {
+  const box = document.getElementById('aiMessages');
+  const div = document.createElement('div');
+  div.className = 'ai-msg ai-side';
+  div.innerHTML = `<div class="ai-msg-av">🤖</div>
+    <div class="ai-bubble"><div class="ai-typing"><span></span><span></span><span></span></div></div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+function autoDetectCategory(text) {
+  const t = text.toLowerCase();
+  if (t.includes('problem') || t.includes('reject') || t.includes('short') || t.includes('missing') || t.includes('wrong') || t.includes('issue')) return 'issue';
+  if (t.includes('report') || t.includes('summary') || t.includes('status') || t.includes('today')) return 'report';
+  if (t.includes('how') || t.includes('what') || t.includes('why') || t.includes('explain') || t.includes('?')) return 'query';
+  return 'task';
+}
+
+function saveAIRecord(question, answer, category) {
+  const now = new Date();
+  const record = {
+    id: Date.now(),
+    category,
+    title: question.length > 60 ? question.substring(0, 57) + '...' : question,
+    question,
+    answer,
+    time: now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    date: now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  };
+  aiRecords.unshift(record);
+  document.getElementById('ai-stat-records').textContent = aiRecords.length;
+  document.getElementById('nb-ai').textContent = aiRecords.length;
+  renderAIRecords();
+}
+
+function saveManualNote() {
+  const category = document.getElementById('aiNoteCategory').value;
+  const title    = document.getElementById('aiNoteTitle').value.trim();
+  const body     = document.getElementById('aiNoteBody').value.trim();
+  if (!title || !body) { alert('Please enter both title and details.'); return; }
+
+  const now = new Date();
+  aiRecords.unshift({
+    id: Date.now(), category, title,
+    question: `[Manual Note] ${title}`, answer: body,
+    time: now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+    date: now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
+  });
+
+  document.getElementById('aiNoteTitle').value = '';
+  document.getElementById('aiNoteBody').value  = '';
+  document.getElementById('ai-stat-records').textContent = aiRecords.length;
+  document.getElementById('nb-ai').textContent = aiRecords.length;
+  renderAIRecords();
+  addActivity('ai', `Note saved: ${title}`, category, 'info');
+  alert('✅ Record saved!');
+}
+
+function renderAIRecords() {
+  const body = document.getElementById('aiRecordsBody');
+  if (!aiRecords.length) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-icon" style="font-size:32px">🗂</div>No records yet.</div>';
+    return;
+  }
+  const tagMap = {
+    issue:  ['tag-issue',  '🔴 Issue'],
+    task:   ['tag-task',   '🟢 Task'],
+    report: ['tag-report', '🔵 Report'],
+    query:  ['tag-query',  '🟣 Query'],
+  };
+  body.innerHTML = aiRecords.map((r,i) => {
+    const [tagClass, tagLabel] = tagMap[r.category] || ['tag-query','🟣 Query'];
+    return `<div class="ai-rec-item" onclick="viewAIRecord(${i})">
+      <div class="ai-rec-item-title">${r.title}</div>
+      <div class="ai-rec-item-meta">
+        <span class="ai-rec-item-tag ${tagClass}">${tagLabel}</span>
+        <span>${r.date} · ${r.time}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function viewAIRecord(i) {
+  const r = aiRecords[i];
+  // Scroll to AI chat and replay the conversation visually
+  goPageDirect('ai');
+  const box = document.getElementById('aiMessages');
+
+  // Create a highlighted replay bubble
+  const div = document.createElement('div');
+  div.style.cssText = 'background:#f3f0ff;border:2px solid #7c3aed;border-radius:12px;padding:14px;margin:8px 0;font-size:13px';
+  div.innerHTML = `<div style="font-size:11px;font-weight:700;color:#7c3aed;margin-bottom:8px">📂 RECORD from ${r.date} · ${r.time}</div>
+    <div style="font-weight:700;margin-bottom:6px;color:var(--steel)">Q: ${r.question}</div>
+    <div style="color:var(--ink);line-height:1.6">${r.answer.substring(0,300)}${r.answer.length>300?'...':''}</div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function goPageDirect(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const navBtns = document.querySelectorAll('.nav-btn');
+  navBtns.forEach(b => { if (b.getAttribute('onclick')?.includes("'"+id+"'")) b.classList.add('active'); });
+}
+
+function exportAIRecords() {
+  if (!aiRecords.length) { alert('No records to export.'); return; }
+  const headers = ['Date','Time','Category','Title','Question','Answer'];
+  const rows = aiRecords.map(r => [
+    r.date, r.time, r.category,
+    `"${r.title.replace(/"/g,'""')}"`,
+    `"${r.question.replace(/"/g,'""')}"`,
+    `"${r.answer.substring(0,500).replace(/"/g,'""')}"`
+  ]);
+  const csv = [headers,...rows].map(r=>r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `AI_Records_${new Date().toLocaleDateString('en-IN').replace(/\//g,'-')}.csv`;
+  a.click();
+}
+</script>
+</body>
+</html>
